@@ -146,7 +146,7 @@ const specificFields = {
     { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Optional)', am: 'የአደጋ ጊዜ ግንኙነት', ti: 'ግንኙነት ህጹጽ' } }
 
 ]
-
+,
     'passport': [ // Based on PPTC 153
         { name: 'passport_validity', type: 'select', options: ['5 Years', '10 Years'], label: { en: 'Validity Period', am: 'የአገልግሎት ዘመን', ti: 'ግዜ ኣገልግሎት' } },
         { name: 'surname', type: 'text', label: { en: 'Surname (Last Name)', am: 'የቤተሰብ ስም', ti: 'ሽም ስድራ' } },
