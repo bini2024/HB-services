@@ -49,12 +49,140 @@ const commonFields = [
     { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዝተወለድካሉ/ክሉ ዕለት' } }
 ];
 
-// Paste your specificFields object here (using the one from previous steps)
+// Specific Inputs per Service (AUDITED & CORRECTED)
 const specificFields = {
-    // ... [KEEP YOUR PREVIOUS specificFields DATA HERE] ...
-    // For the sake of this code block, I will assume the object exists.
-    // Ensure you copy the 'specificFields' object from our previous chat into this spot.
+    'travel_doc': [ // Based on IMM 5721
+        { name: 'uci_number', type: 'text', label: { en: 'UCI / Client ID (from Refugee document)', am: 'UCI ቁጥር (ከጥገኝነት ወረቀት ላይ)', ti: 'UCI ቁጽሪ' } },
+        { name: 'surname', type: 'text', label: { en: 'Surname (Last Name)', am: 'የቤተሰብ ስም', ti: 'ሽም ስድራ' } },
+        { name: 'given_name', type: 'text', label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ሽም' } },
+        { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
+        { name: 'birth_country', type: 'text', label: { en: 'Country of Birth', am: 'የተወለዱበት አገር', ti: 'ዝተወለድካሉ ሃገር' } },
+        { name: 'sex', type: 'select', options: ['F', 'M', 'X'], label: { en: 'Sex', am: 'ፆታ', ti: 'ጾታ' } },
+        
+        // Critical for Refugee Travel Doc
+        { name: 'refugee_status_date', type: 'date', label: { en: 'Date Refugee Status Granted', am: 'ጥገኝነት ያገኙበት ቀን', ti: 'ዑቕባ ዝረኸብኩምሉ ዕለት' } },
+        { name: 'citizenship_original', type: 'text', label: { en: 'Country of Citizenship (Original)', am: 'ዜግነት (የመጀመሪያ)', ti: 'ዜግነት (ናይ መጀመርያ)' } },
+        
+        { name: 'height', type: 'text', label: { en: 'Height (cm)', am: 'ቁመት (ሴሜ)', ti: 'ቁመት (ሰ.ሜ)' } },
+        { name: 'eye_color', type: 'text', label: { en: 'Eye Color', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
+        
+        // Guarantor (Mandatory)
+        { name: 'guarantor_name', type: 'text', label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ሽም ዋስ' } },
+        { name: 'guarantor_ppt_number', type: 'text', label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋስ' } },
+        { name: 'guarantor_sign_date', type: 'date', label: { en: 'Date Guarantor Signed', am: 'ዋሱ የፈረመበት ቀን', ti: 'ዋስ ዝፈረመሉ ዕለት' } }
+    ],
+
+    'passport': [ // Based on PPTC 153
+        { name: 'passport_validity', type: 'select', options: ['5 Years', '10 Years'], label: { en: 'Validity Period', am: 'የአገልግሎት ዘመን', ti: 'ግዜ ኣገልግሎት' } },
+        { name: 'surname', type: 'text', label: { en: 'Surname (Last Name)', am: 'የቤተሰብ ስም', ti: 'ሽም ስድራ' } },
+        { name: 'given_name', type: 'text', label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ሽም' } },
+        { name: 'mothers_maiden_name', type: 'text', label: { en: 'Mother\'s Surname at Birth (Maiden Name)', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ሽም ኣደ (ቅድሚ መውስቦ)' } },
+        { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
+        { name: 'birth_city', type: 'text', label: { en: 'City of Birth', am: 'የተወለዱበት ከተማ', ti: 'ዝተወለድካሉ ከተማ' } },
+        
+        // Physical Desc
+        { name: 'eye_color', type: 'text', label: { en: 'Eye Color', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
+        { name: 'height', type: 'text', label: { en: 'Height (cm)', am: 'ቁመት (ሴሜ)', ti: 'ቁመት (ሰ.ሜ)' } },
+        
+        // Address History (2 Years)
+        { name: 'address_history', type: 'textarea', label: { en: 'Address History (Last 2 Years - No Gaps)', am: 'የአድራሻ ታሪክ (ያለፉት 2 ዓመታት)', ti: 'ናይ ኣድራሻ ታሪክ (ዝሓለፈ 2 ዓመት)' } },
+        
+        // Guarantor
+        { name: 'guarantor_name', type: 'text', label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ሽም ዋስ' } },
+        { name: 'guarantor_ppt_number', type: 'text', label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋስ' } },
+        { name: 'guarantor_phone', type: 'tel', label: { en: 'Guarantor Phone', am: 'የዋስ ስልክ', ti: 'ተሌፎን ዋስ' } },
+        
+        // References (2 People)
+        { name: 'ref1_details', type: 'textarea', label: { en: 'Reference 1 (Name, Phone, Address, Relation)', am: 'ዋቢ 1 (ስም፣ ስልክ፣ አድራሻ)', ti: 'መወከሲ 1 (ሽም፣ ስልክ፣ ኣድራሻ)' } },
+        { name: 'ref2_details', type: 'textarea', label: { en: 'Reference 2 (Name, Phone, Address, Relation)', am: 'ዋቢ 2 (ስም፣ ስልክ፣ አድራሻ)', ti: 'መወከሲ 2 (ሽም፣ ስልክ፣ ኣድራሻ)' } }
+    ],
+
+    'citizenship': [ // Based on CIT 0002
+        { name: 'uci_number', type: 'text', label: { en: 'UCI (Client ID)', am: 'UCI ቁጥር', ti: 'UCI ቁጽሪ' } },
+        { name: 'full_name', type: 'text', label: { en: 'Full Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
+        { name: 'pr_date', type: 'date', label: { en: 'Date you became a PR', am: 'PR ያገኙበት ቀን', ti: 'PR ዝረኸብካሉ ዕለት' } },
+        
+        // The 5-Year Rule
+        { name: 'presence_calc_days', type: 'number', label: { en: 'Physical Presence Days (From Calculator - must be >1095)', am: 'ካናዳ ውስጥ የኖሩበት ቀናት ብዛት (ከ1095 በላይ መሆን አለበት)', ti: 'ኣብ ካናዳ ዝነበርኩምሉ መዓልታት (ካብ 1095 ክበዝሕ ኣለዎ)' } },
+        { name: 'address_history', type: 'textarea', label: { en: 'Address History (Last 5 Years)', am: 'የአድራሻ ታሪክ (ያለፉት 5 ዓመታት)', ti: 'ናይ ኣድራሻ ታሪክ (ዝሓለፈ 5 ዓመት)' } },
+        { name: 'work_history', type: 'textarea', label: { en: 'Work/Education History (Last 5 Years)', am: 'የሥራ/ትምህርት ታሪክ (ያለፉት 5 ዓመታት)', ti: 'ናይ ስራሕ/ትምህርቲ ታሪክ (ዝሓለፈ 5 ዓመት)' } },
+        
+        // Taxes
+        { name: 'taxes_filed', type: 'select', options: ['Yes', 'No'], label: { en: 'Filed Taxes for last 3 years?', am: 'ላለፉት 3 ዓመታት ግብር ከፍለዋል?', ti: 'ንዝሓለፈ 3 ዓመታት ግብሪ ከፊልካዶ?' } },
+        
+        // Language
+        { name: 'language_proof', type: 'select', options: ['Diploma/Transcripts', 'LINC Certificate', 'CELPIP/IELTS', 'Age 55+ (Exempt)'], label: { en: 'Proof of Language (Age 18-54)', am: 'የቋንቋ ማረጋገጫ (ከ18-54 ዓመት)', ti: 'ናይ ቋንቋ መረጋገጺ (ካብ 18-54 ዓመት)' } },
+        
+        // Prohibitions
+        { name: 'criminal_history', type: 'select', options: ['No', 'Yes'], label: { en: 'Any Criminal History / Charges?', am: 'የወንጀል ታሪክ አለ?', ti: 'ናይ ገበን ታሪክ ኣለኩምዶ?' } }
+    ],
+
+    'health_card': [ // Based on OHIP 0265-82
+        { name: 'status_doc', type: 'select', options: ['PR Card', 'Work Permit', 'Confirmation of PR'], label: { en: 'Immigration Document', am: 'የኢሚግሬሽን ሰነድ', ti: 'ናይ ኢሚግሬሽን ሰነድ' } },
+        { name: 'residency_doc', type: 'select', options: ['Drivers License', 'Bank Statement', 'Lease Agreement', 'Pay Stub'], label: { en: 'Proof of Address (Ontario)', am: 'የአድራሻ ማረጋገጫ', ti: 'ናይ ኣድራሻ መረጋገጺ' } },
+        { name: 'arrival_date_canada', type: 'date', label: { en: 'Date Arrived in Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
+        { name: 'arrival_date_ontario', type: 'date', label: { en: 'Date Arrived in Ontario', am: 'ኦንታሪዮ የገቡበት ቀን', ti: 'ናብ ኦንታሪዮ ዝኣተውሉ ዕለት' } }
+    ],
+
+    'single_status': [ // Statutory Declaration
+        { name: 'full_name', type: 'text', label: { en: 'Full Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
+        { name: 'marital_status', type: 'select', options: ['Never Married', 'Divorced', 'Widowed'], label: { en: 'Current Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
+        { name: 'fiance_name', type: 'text', label: { en: 'Name of Future Spouse', am: 'የሚጋቡት ሰው ስም', ti: 'ሽም መጻምድቲ' } },
+        { name: 'marriage_country', type: 'text', label: { en: 'Country of Marriage', am: 'ጋብቻው የሚፈጸምበት አገር', ti: 'መርዓ ዝግበረሉ ሃገር' } },
+        { name: 'father_name', type: 'text', label: { en: 'Father\'s Name', am: 'የአባት ስም', ti: 'ሽም ኣቦ' } },
+        { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } }
+    ],
+
+    'marriage_cert': [ // Service Ontario
+        { name: 'groom_name', type: 'text', label: { en: 'Applicant 1 Name (Groom)', am: 'አመልካች 1 ስም (ሙሽራ)', ti: 'መመርዓዊ' } },
+        { name: 'bride_name', type: 'text', label: { en: 'Applicant 2 Name (Bride)', am: 'አመልካች 2 ስም (ሙሽሪት)', ti: 'መመርዓዊት' } },
+        { name: 'marriage_date', type: 'date', label: { en: 'Date of Marriage', am: 'የጋብቻ ቀን', ti: 'ዝተመርዓዉሉ ዕለት' } },
+        { name: 'marriage_city', type: 'text', label: { en: 'City of Marriage', am: 'ጋብቻው የተፈጸመበት ከተማ', ti: 'መርዓ ዝተፈጸመሉ ከተማ' } }
+    ],
+
+    'death_cert': [
+        { name: 'deceased_name', type: 'text', label: { en: 'Deceased Full Name', am: 'የሟች ሙሉ ስም', ti: 'ሙሉእ ሽም መዋቲ' } },
+        { name: 'date_death', type: 'date', label: { en: 'Date of Death', am: 'የሞቱበት ቀን', ti: 'ዝሞትሉ ዕለት' } },
+        { name: 'place_death', type: 'text', label: { en: 'Place of Death (City)', am: 'የሞቱበት ከተማ', ti: 'ዝሞትሉ ከተማ' } },
+        { name: 'applicant_relationship', type: 'text', label: { en: 'Your Relationship to Deceased', am: 'ከሟች ጋር ያሎት ዝምድና', ti: 'ምስ መዋቲ ዘለኩም ዝምድና' } }
+    ],
+
+    'sin_card': [
+        { name: 'full_name', type: 'text', label: { en: 'Full Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
+        { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
+        { name: 'father_name', type: 'text', label: { en: 'Father\'s Name', am: 'የአባት ስም', ti: 'ሽም ኣቦ' } },
+        { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Maiden Name', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ሽም ኣደ (ቅድሚ መውስቦ)' } },
+        { name: 'status_doc_type', type: 'select', options: ['PR Card', 'Work Permit', 'Refugee Doc'], label: { en: 'Primary Document Type', am: 'የመታወቂያ አይነት', ti: 'ዓይነት መታወቒ' } }
+    ],
+
+    'ei_benefit': [
+        { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
+        { name: 'mother_maiden', type: 'text', label: { en: 'Mother\'s Maiden Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } },
+        { name: 'last_employer', type: 'text', label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'ናይ መወዳእታ ኣሰሪ ስም' } },
+        { name: 'last_day_worked', type: 'date', label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ ስራሕ መዓልቲ' } },
+        { name: 'reason_leaving', type: 'select', options: ['Shortage of Work', 'Illness', 'Maternity', 'Quit', 'Fired'], label: { en: 'Reason for Stopping', am: 'ስራ ያቆሙበት ምክንያት', ti: 'ስራሕ ዘቋረጽኩምሉ ምኽንያት' } },
+        
+        // Banking Info (Critical for EI)
+        { name: 'bank_inst', type: 'text', label: { en: 'Bank Institution # (3 digits)', am: 'የባንክ መለያ ቁጥር (3 አሃዝ)', ti: 'መፍለይ ቁጽሪ ባንኪ' } },
+        { name: 'bank_transit', type: 'text', label: { en: 'Transit # (5 digits)', am: 'ትራንዚት ቁጥር (5 አሃዝ)', ti: 'ትራንዚት ቁጽሪ' } },
+        { name: 'bank_account', type: 'text', label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'ቁጽሪ ሒሳብ' } }
+    ],
+
+    'oas': [
+        { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
+        { name: 'date_entered_canada', type: 'date', label: { en: 'Date Entered Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
+        { name: 'marital_status', type: 'select', options: ['Married', 'Single', 'Widowed', 'Divorced'], label: { en: 'Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
+        { name: 'spouse_sin', type: 'text', label: { en: 'Spouse SIN (If applicable)', am: 'የባለቤት SIN (ካለ)', ti: 'ናይ መጻምድቲ SIN (እንተልዩ)' } }
+    ],
+
+    'lost_passport': [
+        { name: 'lost_date', type: 'date', label: { en: 'Date Lost/Stolen', am: 'የጠፋበት ቀን', ti: 'ዝጠፍአሉ ዕለት' } },
+        { name: 'police_report', type: 'select', options: ['Yes', 'No'], label: { en: 'Reported to Police?', am: 'ለፖሊስ ተነግሯል?', ti: 'ንፖሊስ ተሓቢሩዶ?' } },
+        { name: 'location_lost', type: 'text', label: { en: 'Location Lost (City, Country)', am: 'የጠፋበት ቦታ', ti: 'ዝጠፍአሉ ቦታ' } },
+        { name: 'explanation', type: 'textarea', label: { en: 'Detailed Explanation', am: 'ዝርዝር ማብራሪያ', ti: 'ዝርዝር መብርሂ' } }
+    ]
 };
+
 
 // --- INITIALIZATION ---
 function init() {
