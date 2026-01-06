@@ -94,9 +94,9 @@ const specificFields = {
 
     { name: 'immigration_doc_number', type: 'text', required: true, label: { en: 'Immigration Document Number', am: 'የሰነድ ቁጥር', ti: 'ቁጽሪ ሰነድ' } },
 
-    { name: 'immigration_issue_date', type: 'date', required: true, label: { en: 'Date of Issue', am: 'የተሰጠበት ቀን', ti: 'ዕለት ዝወጻሉ(Date of Issue)' } },
+    { name: 'immigration_issue_date', type: 'date', required: true, label: { en: 'Date of Issue', am: 'የተሰጠበት ቀን', ti: 'ዝተዋህበሉ ዕለት(Date of Issue)' } },
 
-    { name: 'immigration_expiry_date', type: 'date', label: { en: 'Expiry Date (if applicable)', am: 'የሚያበቃበት ቀን', ti: 'ዕለት ዝውደኣሉ(Expiry Date)' } },
+    { name: 'immigration_expiry_date', type: 'date', label: { en: 'Expiry Date (if applicable)', am: 'የሚያበቃበት ቀን', ti: 'ዘብቀዓሉ ዕለት(Expiry Date)' } },
 
     // ===============================
     // SECTION 4: TRAVEL & CITIZENSHIP
@@ -147,18 +147,17 @@ const specificFields = {
         // ===============================
         // SECTION 1: PASSPORT TYPE
         // ===============================
-        { name: 'passport_validity', type: 'select', required: true, options: ['5 Years', '10 Years'], label: { en: 'Passport Validity Period', am: 'የፓስፖርት አገልግሎት ዘመን', ti: 'ግዜ ኣገልግሎት ፓስፖርት' } },
+        { name: 'passport_validity', type: 'select', required: true, options: ['5 Years', '10 Years'], label: { en: 'Passport Validity Period', am: 'የፓስፖርት አገልግሎት ዘመን', ti: 'ናይ ክንደይ ግዜ ፓስፖርት ትደሊ' } },
 
         // ===============================
         // SECTION 2: PERSONAL INFORMATION
         // ===============================
-        { name: 'surname', type: 'text', required: true, label: { en: 'Surname (Last Name)', am: 'የቤተሰብ ስም', ti: 'ሽም ስድራ' } },
-        { name: 'given_names', type: 'text', required: true, label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ሽም' } },
-        { name: 'former_surnames', type: 'text', label: { en: 'All Former Surnames (including maiden name)', am: 'የቀድሞ የቤተሰብ ስሞች', ti: 'ናይ ቀደም ሽም ስድራ' } },
-        { name: 'parent_surname_birth', type: 'text', required: true, label: { en: 'Mother\'s Maiden Name (Surname at Birth)', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ሽም ኣደ (ቅድሚ መውስቦ)' } },
+        { name: 'surname', type: 'text', required: true, label: { en: 'Last Name', am: 'የቤተሰብ ስም', ti: 'ሽም ኣባሓጎ' } },
+        { name: 'given_names', type: 'text', required: true, label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ስም' } },
+        { name: 'parent_surname_birth', type: 'text', required: true, label: { en: 'Mother\'s Maiden Name (Surname at Birth)', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ናይ ኣደ ስም ኣባሓጎ(lastname)' } },
         { name: 'dob', type: 'date', required: true, label: { en: 'Date of Birth (YYYY-MM-DD)', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
-        { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ከተማ ልደት' } },
-        { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ሃገር ልደት' } },
+        { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ዝተወለድካሉ/ክሉ ከተማ' } },
+        { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ዝተወለድካሉ/ክሉ ሃገር' } },
         { name: 'sex', type: 'select', required: true, options: ['F', 'M', 'X'], label: { en: 'Sex / Gender', am: 'ፆታ', ti: 'ጾታ' } },
         { name: 'eye_color', type: 'text', required: true, label: { en: 'Eye Colour', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
         { name: 'height', type: 'text', required: true, label: { en: 'Height (cm or inches)', am: 'ቁመት', ti: 'ቁመት' } },
@@ -168,44 +167,45 @@ const specificFields = {
         // ===============================
         { name: 'citizenship_doc_type', type: 'select', required: true, options: ['Birth Certificate (Canada)', 'Citizenship Certificate'], label: { en: 'Citizenship Document Type', am: 'የዜግነት ማረጋገጫ አይነት', ti: 'ዓይነት ሰነድ ዜግነት' } },
         { name: 'citizenship_doc_number', type: 'text', required: true, label: { en: 'Certificate / Registration Number', am: 'የሰርተፍኬት ቁጥር', ti: 'ቁጽሪ ሰርተፍኬት' } },
-        { name: 'citizenship_issue_date', type: 'date', required: true, label: { en: 'Date of Issue', am: 'የተሰጠበት ቀን', ti: 'ዕለት ምውጻእ' } },
+        { name: 'citizenship_issue_date', type: 'date', required: true, label: { en: 'Date of Issue', am: 'የተሰጠበት ቀን', ti: 'ዝተዋህበሉ ዕለት' } },
 
         // ===============================
         // SECTION 4: SUPPORTING ID (CRITICAL)
         // ===============================
-        { name: 'id_type', type: 'text', required: true, label: { en: 'ID Document Type (e.g. Driver\'s License)', am: 'የመታወቂያ አይነት (መንጃ ፈቃድ)', ti: 'ዓይነት መታወቒ (መንጃ ፍቃድ)' } },
-        { name: 'id_number', type: 'text', required: true, label: { en: 'ID Document Number', am: 'የመታወቂያ ቁጥር', ti: 'ቁጽሪ መታወቒ' } },
-        { name: 'id_expiry_date', type: 'date', required: true, label: { en: 'ID Expiry Date', am: 'መታወቂያው የሚያበቃበት ቀን', ti: 'መታወቒ ዘብቅዓሉ ዕለት' } },
+        { name: 'id_type', type: 'text', required: true, label: { en: 'ID Document Type (e.g. Driver\'s License)', am: 'የመታወቂያ አይነት (መንጃ ፈቃድ)', ti: 'ዓይነት መንነት እተቅርቦ ' } },
+        { name: 'id_number', type: 'text', required: true, label: { en: 'ID Document Number', am: 'የመታወቂያ ቁጥር', ti: 'ቁጽሪ ID ' } },
+        { name: 'id_expiry_date', type: 'date', required: true, label: { en: 'ID Expiry Date', am: 'መታወቂያው የሚያበቃበት ቀን', ti: 'ID ዘብቅዓሉ ዕለት' } },
 
         // ===============================
         // SECTION 5: CONTACT & ADDRESSES
         // ===============================
         { name: 'home_address', type: 'textarea', required: true, label: { en: 'Current Home Address', am: 'የአሁን መኖሪያ አድራሻ', ti: 'ሕጂ ዘለካ ኣድራሻ' } },
         { name: 'mailing_address', type: 'textarea', label: { en: 'Mailing Address (if different)', am: 'የፖስታ አድራሻ', ti: 'ኣድራሻ ፖስታ' } },
-        { name: 'phone_primary', type: 'tel', required: true, label: { en: 'Primary Phone Number', am: 'ዋና ስልክ', ti: 'ቀንዲ ተሌፎን' } },
+        { name: 'phone_primary', type: 'tel', required: true, label: { en: 'Primary Phone Number', am: 'ዋና ስልክ', ti: 'ቁጽሪ ቴሌ.' } },
         { name: 'email', type: 'email', required: true, label: { en: 'Email Address', am: 'ኢሜይል', ti: 'ኢሜይል' } },
-        { name: 'address_history', type: 'textarea', required: true, label: { en: 'Address History – Last 2 Years (No gaps)', am: 'የአድራሻ ታሪክ (2 ዓመት)', ti: 'ናይ ኣድራሻ ታሪክ (2 ዓመት)' } },
+        { name: 'address_history', type: 'textarea', required: true, label: { en: 'Address History – Last 2 Years (No gaps)', am: 'የአድራሻ ታሪክ (2 ዓመት)', ti: 'ናይ 2 ዓመት ዝተቀመጥካሉ ኣድራሻ ብዝርዝር ጥቀስ' } },
+        { name: 'occupation_history', type: 'textarea', required: true, label: { en: 'Employment / School History – Last 2 Years', am: 'የሥራ/ትምህርት ታሪክ', ti: 'ናይ ስራሕ ወይ ትምህርቲ ዝከድካዮ ኣብዚ 2 ዓመት ብዝርዝር ጥቀስ(ኣድራሻ፣ ዝሰራሕካሉ ትካል ወይ ትምህርቲ) ' } },
 
         // ===============================
         // SECTION 6: GUARANTOR (Enhanced)
         // ===============================
-        { name: 'guarantor_full_name', type: 'text', required: true, label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ሽም ዋስ' } },
-        { name: 'guarantor_ppt_number', type: 'text', required: true, label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋስ' } },
+        { name: 'guarantor_full_name', type: 'text', required: true, label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ስም ዋሕስ' } },
+        { name: 'guarantor_ppt_number', type: 'text', required: true, label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋሕስ' } },
         { name: 'guarantor_issue_date', type: 'date', required: true, label: { en: 'Guarantor Passport Issue Date', am: 'ፓስፖርቱ የተሰጠበት ቀን', ti: 'ፓስፖርት ዝተወሃበሉ ዕለት' } },
         { name: 'guarantor_expiry_date', type: 'date', required: true, label: { en: 'Guarantor Passport Expiry Date', am: 'ፓስፖርቱ የሚያበቃበት ቀን', ti: 'ፓስፖርት ዘብቅዓሉ ዕለት' } },
-        { name: 'guarantor_phone', type: 'tel', required: true, label: { en: 'Guarantor Phone Number', am: 'የዋስ ስልክ', ti: 'ተሌፎን ዋስ' } },
-        { name: 'guarantor_known_years', type: 'number', required: true, label: { en: 'Years Known Guarantor', am: 'ዋሱ ስንት ዓመት ያውቅዎታል?', ti: 'ዋስ ስንት ዓመት ይፈልጠካ?' } },
+        { name: 'guarantor_phone', type: 'tel', required: true, label: { en: 'Guarantor Phone Number', am: 'የዋስ ስልክ', ti: 'ቁጽሪ ቴሌ. ዋሕስ' } },
+        { name: 'guarantor_known_years', type: 'number', required: true, label: { en: 'Years Known Guarantor', am: 'ዋሱ ስንት ዓመት ያውቅዎታል?', ti: 'ንክንደይ ግዜ ትፋለጡ ምስ ዋሕስ?' } },
 
         // ===============================
         // SECTION 7: REFERENCES
         // ===============================
-        { name: 'reference_1', type: 'textarea', required: true, label: { en: 'Reference 1 (Name, Phone, Address, Relationship, Years Known)', am: 'መወከሲ 1', ti: 'መወከሲ 1' } },
-        { name: 'reference_2', type: 'textarea', required: true, label: { en: 'Reference 2 (Name, Phone, Address, Relationship, Years Known)', am: 'መወከሲ 2', ti: 'መወከሲ 2' } },
+        { name: 'reference_1', type: 'textarea', required: true, label: { en: 'Reference 1 (Name, Phone, Address, Relationship, Years Known)', am: 'መወከሲ 1', ti: 'ምስክር 1 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+        { name: 'reference_2', type: 'textarea', required: true, label: { en: 'Reference 2 (Name, Phone, Address, Relationship, Years Known)', am: 'መወከሲ 2', ti: 'ምስክር 2 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
 
         // ===============================
         // SECTION 8: EMERGENCY CONTACT (Optional)
         // ===============================
-        { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ግንኙነት ህጹጽ' } }
+        { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } }
     ],
 
     'health_card': [ // Based on OHIP 0265-82
