@@ -134,7 +134,7 @@ const specificFields = {
     // ===============================
     { name: 'reference_1', type: 'textarea', required: true, label: { en: 'Reference 1 (Name, Phone, Address, Relationship)', am: 'መወከሲ 1', ti: 'ምስክር 1 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
 
-    { name: 'reference_2', type: 'textarea', required: true, label: { en: 'Reference 2 (Name, Phone, Address, Relationship)', am: 'መወከሲ 2', ti: 'ምስክር 1 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+    { name: 'reference_2', type: 'textarea', required: true, label: { en: 'Reference 2 (Name, Phone, Address, Relationship)', am: 'መወከሲ 2', ti: 'ምስክር 2 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
 
     // ===============================
     // SECTION 8: EMERGENCY CONTACT
