@@ -51,25 +51,40 @@ const commonFields = [
 
 // Specific Inputs per Service (AUDITED & CORRECTED)
 const specificFields = {
-    'travel_doc': [ // Based on IMM 5721
+   'travel_doc': [
+        // --- SECTION 1: PERSONAL DETAILS ---
         { name: 'uci_number', type: 'text', label: { en: 'UCI / Client ID (from Refugee document)', am: 'UCI ቁጥር (ከጥገኝነት ወረቀት ላይ)', ti: 'UCI ቁጽሪ' } },
         { name: 'surname', type: 'text', label: { en: 'Surname (Last Name)', am: 'የቤተሰብ ስም', ti: 'ሽም ስድራ' } },
         { name: 'given_name', type: 'text', label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ሽም' } },
         { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
         { name: 'birth_country', type: 'text', label: { en: 'Country of Birth', am: 'የተወለዱበት አገር', ti: 'ዝተወለድካሉ ሃገር' } },
         { name: 'sex', type: 'select', options: ['F', 'M', 'X'], label: { en: 'Sex', am: 'ፆታ', ti: 'ጾታ' } },
-        
-        // Critical for Refugee Travel Doc
+        { name: 'marital_status', type: 'select', options: ['Single', 'Married', 'Common-law', 'Divorced', 'Widowed', 'Separated'], label: { en: 'Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
+
+        // --- SECTION 2: PHYSICAL DESCRIPTION ---
+        { name: 'eye_color', type: 'text', label: { en: 'Eye Color', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
+        { name: 'hair_color', type: 'text', label: { en: 'Hair Color', am: 'የፀጉር ቀለም', ti: 'ሕብሪ ጸጉሪ' } },
+        { name: 'height', type: 'text', label: { en: 'Height (cm)', am: 'ቁመት (ሴሜ)', ti: 'ቁመት (ሰ.ሜ)' } },
+
+        // --- SECTION 3: IMMIGRATION STATUS ---
         { name: 'refugee_status_date', type: 'date', label: { en: 'Date Refugee Status Granted', am: 'ጥገኝነት ያገኙበት ቀን', ti: 'ዑቕባ ዝረኸብኩምሉ ዕለት' } },
         { name: 'citizenship_original', type: 'text', label: { en: 'Country of Citizenship (Original)', am: 'ዜግነት (የመጀመሪያ)', ti: 'ዜግነት (ናይ መጀመርያ)' } },
-        
-        { name: 'height', type: 'text', label: { en: 'Height (cm)', am: 'ቁመት (ሴሜ)', ti: 'ቁመት (ሰ.ሜ)' } },
-        { name: 'eye_color', type: 'text', label: { en: 'Eye Color', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
-        
-        // Guarantor (Mandatory)
+
+        // --- SECTION 4: HISTORY (2 YEARS) ---
+        // Note: I made these TextAreas so they can paste a list or type multiple lines
+        { name: 'address_history', type: 'textarea', label: { en: 'Address History (Last 2 Years - No Gaps)', am: 'የአድራሻ ታሪክ (ያለፉት 2 ዓመታት)', ti: 'ናይ ኣድራሻ ታሪክ (ዝሓለፈ 2 ዓመት)' } },
+        { name: 'occupation_history', type: 'textarea', label: { en: 'Work/School History (Last 2 Years)', am: 'የሥራ/ትምህርት ታሪክ (ያለፉት 2 ዓመታት)', ti: 'ናይ ስራሕ/ትምህርቲ ታሪክ (ዝሓለፈ 2 ዓመት)' } },
+
+        // --- SECTION 5: GUARANTOR (Must be Canadian Citizen) ---
         { name: 'guarantor_name', type: 'text', label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ሽም ዋስ' } },
+        { name: 'guarantor_dob', type: 'date', label: { en: 'Guarantor Date of Birth', am: 'የዋስ የትውልድ ቀን', ti: 'ዕለተ ልደት ዋስ' } },
         { name: 'guarantor_ppt_number', type: 'text', label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋስ' } },
-        { name: 'guarantor_sign_date', type: 'date', label: { en: 'Date Guarantor Signed', am: 'ዋሱ የፈረመበት ቀን', ti: 'ዋስ ዝፈረመሉ ዕለት' } }
+        { name: 'guarantor_phone', type: 'tel', label: { en: 'Guarantor Phone', am: 'የዋስ ስልክ', ti: 'ተሌፎን ዋስ' } },
+        { name: 'guarantor_sign_date', type: 'date', label: { en: 'Date Guarantor Signed', am: 'ዋሱ የፈረመበት ቀን', ti: 'ዋስ ዝፈረመሉ ዕለት' } },
+
+        // --- SECTION 6: REFERENCES (2 People, Not Family) ---
+        { name: 'ref1_details', type: 'textarea', label: { en: 'Reference 1 (Name, Phone, Address, Relation)', am: 'ዋቢ 1 (ስም፣ ስልክ፣ አድራሻ)', ti: 'መወከሲ 1 (ሽም፣ ስልክ፣ ኣድራሻ)' } },
+        { name: 'ref2_details', type: 'textarea', label: { en: 'Reference 2 (Name, Phone, Address, Relation)', am: 'ዋቢ 2 (ስም፣ ስልክ፣ አድራሻ)', ti: 'መወከሲ 2 (ሽም፣ ስልክ፣ ኣድራሻ)' } }
     ],
 
     'passport': [ // Based on PPTC 153
