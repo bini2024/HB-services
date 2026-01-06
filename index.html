@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habesha Services Canada</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <div class="logo">Habesha Services</div>
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('am')">አማ</button>
+        <button class="lang-btn" onclick="setLang('ti')">ትግ</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="alert" id="general-warning">
+        ⚠️ <strong>Important:</strong> Please fill the form inputs using <strong>English Letters</strong> only.
+        <br><span style="font-size:0.85em; opacity:0.8">(መግለጫ፡ እባክዎን ቅጹን በእንግሊዝኛ ፊደላት ብቻ ይሙሉ / በጃኹም ነቲ ፎርም ብ ናይ እንግሊዝኛ ፊደላት ጥራይ ምልእዎ)</span>
+    </div>
+
+    <h3 id="select-title">Select Service</h3>
+    <div class="grid" id="service-grid">
+        </div>
+
+    <div id="form-container">
+        <h2 id="form-header-title">Application</h2>
+        <form id="main-form" onsubmit="handleFormSubmit(event)">
+            <div id="dynamic-inputs"></div>
+            
+            <div class="form-section-title" id="lbl-docs">Documents</div>
+            <div class="input-group">
+                <label id="lbl-upload">Upload ID / Supporting Docs</label>
+                <div class="upload-box" onclick="document.getElementById('file-input').click()">
+                    <span id="upload-text">Click to Select Files</span>
+                    <input type="file" id="file-input" multiple style="display:none" onchange="updateFileCount()">
+                </div>
+                <div class="helper-text" id="file-count">No files selected</div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="btn-submit">Submit Application</button>
+        </form>
+    </div>
+</div>
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
