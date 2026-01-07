@@ -247,16 +247,62 @@ const specificFields = {
     ],
 
     'ei_benefit': [
-        { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
-        { name: 'mother_maiden', type: 'text', label: { en: 'Mother\'s Maiden Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } },
-        { name: 'last_employer', type: 'text', label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'ናይ መወዳእታ ኣሰሪ ስም' } },
-        { name: 'last_day_worked', type: 'date', label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ ስራሕ መዓልቲ' } },
-        { name: 'reason_leaving', type: 'select', options: ['Shortage of Work', 'Illness', 'Maternity', 'Quit', 'Fired'], label: { en: 'Reason for Stopping', am: 'ስራ ያቆሙበት ምክንያት', ti: 'ስራሕ ዘቋረጽኩምሉ ምኽንያት' } },
+        // ===============================
+        // SECTION 1: PERSONAL IDENTIFIERS
+        // ===============================
+        { name: 'sin_number', type: 'text', required: true, label: { en: 'Social Insurance Number (SIN)', am: ' SIN number', ti: 'SIN number)' } },
+        { name: 'mother_maiden_name', type: 'text', required: true, label: { en: 'Mother’s Maiden Name (Surname at Birth)', am: 'የእናት የትውልድ ስም', ti: 'ናይ ኣደ ስም ኣባሓጎ' } },
+
+        // ===============================
+        // SECTION 2: EMPLOYMENT INFORMATION
+        // ===============================
+        { name: 'last_employer_name', type: 'text', required: true, label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'መወዳእታ ዝሰራሕካሉ/ክሉ ስራሕ' } },
+        { name: 'last_employer_address', type: 'textarea', required: true, label: { en: 'Last Employer Address', am: 'የመጨረሻው አሰሪ አድራሻ', ti: 'ኣድራሻ መወዳእታ ስራሕካ/ኪ' } },
+        { name: 'last_day_worked', type: 'date', required: true, label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ መዓልቲ ዝሰራሕካላ/ሉ' } },
         
-        // Banking Info (Critical for EI)
-        { name: 'bank_inst', type: 'text', label: { en: 'Bank Institution # (3 digits)', am: 'የባንክ መለያ ቁጥር (3 አሃዝ)', ti: 'መፍለይ ቁጽሪ ባንኪ' } },
-        { name: 'bank_transit', type: 'text', label: { en: 'Transit # (5 digits)', am: 'ትራንዚት ቁጥር (5 አሃዝ)', ti: 'ትራንዚት ቁጽሪ' } },
-        { name: 'bank_account', type: 'text', label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'ቁጽሪ ሒሳብ' } }
+        { name: 'reason_for_separation', type: 'select', required: true, options: [
+            'Shortage of Work / Layoff',
+            'Illness or Injury',
+            'Pregnancy / Maternity',
+            'Quit',
+            'Fired / Dismissed',
+            'Other'
+        ], label: { en: 'Reason for Stopping Work', am: 'ስራ ያቆሙበት ምክንያት', ti: 'ምኽንያት ምቑራጽ ስራሕ' } },
+
+        { name: 'reason_other_explanation', type: 'textarea', label: { en: 'If Other, please explain', am: 'ሌላ ከሆነ ያብራሩ', ti: 'ካልእ እንተኾይኑ መግለጺ' } },
+
+        // ===============================
+        // SECTION 3: ROE & EXTRA PAY (CRITICAL ADDITIONS)
+        // ===============================
+        { name: 'roe_status', type: 'select', required: true, options: [
+            'Employer submitted it electronically',
+            'I have a paper copy to submit',
+            'I do not have it yet'
+        ], label: { en: 'Record of Employment (ROE) Status', am: 'የስራ ታሪክ ማስረጃ (ROE) ሁኔታ', ti: 'ኩነታት ROE (ናይ ስራሕ መረጋገጺ)' } },
+
+        { name: 'vacation_pay', type: 'number', label: { en: 'Vacation Pay or Severance received ($)', am: 'የተቀበሉት የዕረፍት ወይም የስራ ማቆሚያ ክፍያ ($)', ti: 'ዝተቀበልኩሞ ናይ vacation ወይ ካልእ ክፍሊት ($)' } },
+
+        // ===============================
+        // SECTION 4: WORK HISTORY
+        // ===============================
+        { name: 'other_employers', type: 'textarea', label: { en: 'List other employers in the last 52 weeks (Name & Dates)', am: 'ባለፉት 52 ሳምንታት የሠሩባቸው ሌሎች ቦታዎች (ካለ)', ti: 'ኣብ ዝሓለፈ 52 ሰሙናት ዝሰርሕኩምሎም ካልኦት ቦታታት (እንተሎ)' } },
+
+        // ===============================
+        // SECTION 5: AVAILABILITY
+        // ===============================
+        { name: 'available_for_work', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you willing and able to work?', am: 'ለመስራት ዝግጁ ነዎት?', ti: 'ስራሕ ክትሰርሕ ድሉው ዲካ?' } },
+        
+        // ===============================
+        // SECTION 6: TAXES (CRITICAL ADDITION)
+        // ===============================
+        { name: 'tax_preference', type: 'select', required: true, options: ['Basic Personal Amount', 'Basic + Spousal Amount'], label: { en: 'Income Tax Claim Amount', am: 'የግብር አቆራረጥ ምርጫ', ti: 'ምርጫ ኣቆራርጻ ግብሪ' } },
+
+        // ===============================
+        // SECTION 7: BANKING (DIRECT DEPOSIT)
+        // ===============================
+        { name: 'bank_institution_number', type: 'text', required: true, label: { en: 'Bank Institution Number (3 digits)', am: 'የባንክ መለያ ቁጥር (3 አሃዝ)', ti: 'ቁጽሪ ባንኪ (3 ቁጽርታት)' } },
+        { name: 'bank_transit_number', type: 'text', required: true, label: { en: 'Transit Number (5 digits)', am: 'ትራንዚት ቁጥር (5 አሃዝ)', ti: ' Transit number  (5 ቁጽርታት)' } },
+        { name: 'bank_account_number', type: 'text', required: true, label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'bank account' } }
     ],
 
     'oas': [
