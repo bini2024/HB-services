@@ -248,18 +248,28 @@ const specificFields = {
 
     'ei_benefit': [
         // ===============================
-        // SECTION 1: PERSONAL IDENTIFIERS
+        // SECTION 1: PERSONAL IDENTIFIERS & CONTACT
         // ===============================
-        { name: 'sin_number', type: 'text', required: true, label: { en: 'Social Insurance Number (SIN)', am: ' SIN number', ti: 'SIN number)' } },
-        { name: 'mother_maiden_name', type: 'text', required: true, label: { en: 'Mother’s Maiden Name (Surname at Birth)', am: 'የእናት የትውልድ ስም', ti: 'ናይ ኣደ ስም ኣባሓጎ' } },
+        { name: 'sin_number', type: 'text', required: true, label: { en: 'Social Insurance Number (SIN)', am: 'SIN number', ti: 'SIN number' } },
+        { name: 'date_of_birth', type: 'date', required: true, label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለት ልደት' } }, // CRITICAL ADDITION
+        { name: 'mother_maiden_name', type: 'text', required: true, label: { en: 'Parent’s Last Name at Birth (Mother\'s Maiden Name)', am: 'የእናት የትውልድ ስም', ti: 'ናይ ኣደ ስም ኣባሓጎ' } },
+        { name: 'gender', type: 'select', options: ['Male', 'Female', 'Another Gender'], label: { en: 'Gender', am: 'ጾታ', ti: 'ጾታ' } }, // ADDED
+
+        // ADDRESS FIELDS (CRITICAL FOR MAILING ACCESS CODE)
+        { name: 'applicant_address', type: 'textarea', required: true, label: { en: 'Your Home Address (Street, City, Province, Postal Code)', am: 'የእርስዎ አድራሻ (መንገድ፣ ከተማ፣ ክፍለ ሀገር፣ ፖስታ ኮድ)', ti: 'ናይ ገዛ አድራሻ (መንገዲ፣ ከተማ፣ ፖስታ ኮድ)' } },
 
         // ===============================
         // SECTION 2: EMPLOYMENT INFORMATION
         // ===============================
         { name: 'last_employer_name', type: 'text', required: true, label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'መወዳእታ ዝሰራሕካሉ/ክሉ ስራሕ' } },
+        { name: 'job_title', type: 'text', required: true, label: { en: 'Job Title', am: 'የስራ መደብ', ti: 'ናይ ስራሕ መደብ' } }, // ADDED
         { name: 'last_employer_address', type: 'textarea', required: true, label: { en: 'Last Employer Address', am: 'የመጨረሻው አሰሪ አድራሻ', ti: 'ኣድራሻ መወዳእታ ስራሕካ/ኪ' } },
+        
+        { name: 'first_day_worked', type: 'date', required: true, label: { en: 'First Day Worked', am: 'የመጀመሪያ የስራ ቀን', ti: 'ናይ መጀመርያ መዓልቲ ስራሕ' } }, // CRITICAL ADDITION
         { name: 'last_day_worked', type: 'date', required: true, label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ መዓልቲ ዝሰራሕካላ/ሉ' } },
         
+        { name: 'return_to_work', type: 'select', options: ['Yes', 'No', 'Unknown'], label: { en: 'Do you expect to return to this job?', am: 'ወደዚህ ስራ ይመለሳሉ?', ti: 'ናብዚ ስራሕ ክትምለስ ተስፋ ኣለካ?' } }, // ADDED
+
         { name: 'reason_for_separation', type: 'select', required: true, options: [
             'Shortage of Work / Layoff',
             'Illness or Injury',
@@ -269,10 +279,12 @@ const specificFields = {
             'Other'
         ], label: { en: 'Reason for Stopping Work', am: 'ስራ ያቆሙበት ምክንያት', ti: 'ምኽንያት ምቑራጽ ስራሕ' } },
 
-        { name: 'reason_other_explanation', type: 'textarea', label: { en: 'If Other, please explain', am: 'ሌላ ከሆነ ያብራሩ', ti: 'ካልእ እንተኾይኑ መግለጺ' } },
+        { name: 'reason_other_explanation', type: 'textarea', label: { en: 'If Other, Quit, or Fired: please explain details', am: 'ሌላ፣ በራስ ፈቃድ ወይም ከስራ የተባረሩ ከሆነ ያብራሩ', ti: 'ካልእ፣ ብፍቃድካ ዝወጻእካ ወይ ዝተባረርካ እንተኾይኑ መግለጺ' } },
+
+        { name: 'family_relationship', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you related to the employer or do you own more than 40% of the voting shares?', am: 'ከአሰሪው ጋር ዝምድና አለዎት ወይም ከ40% በላይ ድርሻ አለዎት?', ti: 'ምስቲ አሰሪ ዝምድና አለካ ዶ ወይስ ካብ 40% ንላዕሊ ናይቲ ድርጅት ዋንነት አለካ?' } }, // CRITICAL ADDITION
 
         // ===============================
-        // SECTION 3: ROE & EXTRA PAY (CRITICAL ADDITIONS)
+        // SECTION 3: ROE & MONEY
         // ===============================
         { name: 'roe_status', type: 'select', required: true, options: [
             'Employer submitted it electronically',
@@ -282,10 +294,13 @@ const specificFields = {
 
         { name: 'vacation_pay', type: 'number', label: { en: 'Vacation Pay or Severance received ($)', am: 'የተቀበሉት የዕረፍት ወይም የስራ ማቆሚያ ክፍያ ($)', ti: 'ዝተቀበልኩሞ ናይ vacation ወይ ካልእ ክፍሊት ($)' } },
 
+        { name: 'receiving_pension', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you receiving a pension (CPP, etc)?', am: 'ጡረታ ያገኛሉ?', ti: 'ጡረታ ትወስድ ዶ?' } }, // CRITICAL ADDITION
+
         // ===============================
         // SECTION 4: WORK HISTORY
         // ===============================
-        { name: 'other_employers', type: 'textarea', label: { en: 'List other employers in the last 52 weeks (Name & Dates)', am: 'ባለፉት 52 ሳምንታት የሠሩባቸው ሌሎች ቦታዎች (ካለ)', ti: 'ኣብ ዝሓለፈ 52 ሰሙናት ዝሰርሕኩምሎም ካልኦት ቦታታት (እንተሎ)' } },
+        // Updated label to ensure they include dates, which is required
+        { name: 'other_employers', type: 'textarea', label: { en: 'List other employers in the last 52 weeks (Include Name, Start Date, and End Date)', am: 'ባለፉት 52 ሳምንታት የሠሩባቸው ሌሎች ቦታዎች (ስም፣ መጀመሪያ እና መጨረሻ ቀን)', ti: 'ኣብ ዝሓለፈ 52 ሰሙናት ዝሰርሕኩምሎም ካልኦት ቦታታት (ስም፣ መጀመርያ እና መወዳእታ ዕለት)' } },
 
         // ===============================
         // SECTION 5: AVAILABILITY
@@ -293,7 +308,7 @@ const specificFields = {
         { name: 'available_for_work', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you willing and able to work?', am: 'ለመስራት ዝግጁ ነዎት?', ti: 'ስራሕ ክትሰርሕ ድሉው ዲካ?' } },
         
         // ===============================
-        // SECTION 6: TAXES (CRITICAL ADDITION)
+        // SECTION 6: TAXES
         // ===============================
         { name: 'tax_preference', type: 'select', required: true, options: ['Basic Personal Amount', 'Basic + Spousal Amount'], label: { en: 'Income Tax Claim Amount', am: 'የግብር አቆራረጥ ምርጫ', ti: 'ምርጫ ኣቆራርጻ ግብሪ' } },
 
@@ -304,7 +319,6 @@ const specificFields = {
         { name: 'bank_transit_number', type: 'text', required: true, label: { en: 'Transit Number (5 digits)', am: 'ትራንዚት ቁጥር (5 አሃዝ)', ti: ' Transit number  (5 ቁጽርታት)' } },
         { name: 'bank_account_number', type: 'text', required: true, label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'bank account' } }
     ],
-
     'oas': [
         { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
         { name: 'date_entered_canada', type: 'date', label: { en: 'Date Entered Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
