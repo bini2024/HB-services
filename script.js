@@ -261,12 +261,12 @@ const specificFields = {
         // ===============================
         // SECTION 2: EMPLOYMENT INFORMATION
         // ===============================
-        { name: 'last_employer_name', type: 'text', required: true, label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'መወዳእታ ዝሰራሕካሉ/ክሉ ስራሕ' } },
-        { name: 'job_title', type: 'text', required: true, label: { en: 'Job Title', am: 'የስራ መደብ', ti: 'ናይ ስራሕ መደብ' } }, // ADDED
+        { name: 'last_employer_name', type: 'text', required: true, label: { en: 'Last Employer Name', am: 'የመጨረሻው አሰሪ ስም', ti: 'መወዳእታ ዝሰራሕካሉ/ክሉ ስራሕ ስም' } },
+        { name: 'job_title', type: 'text', required: true, label: { en: 'Job Title', am: 'የስራ መደብ', ti: ' እንታይ ነይሩ ስራሕካ' } }, // ADDED
         { name: 'last_employer_address', type: 'textarea', required: true, label: { en: 'Last Employer Address', am: 'የመጨረሻው አሰሪ አድራሻ', ti: 'ኣድራሻ መወዳእታ ስራሕካ/ኪ' } },
         
-        { name: 'first_day_worked', type: 'date', required: true, label: { en: 'First Day Worked', am: 'የመጀመሪያ የስራ ቀን', ti: 'ናይ መጀመርያ መዓልቲ ስራሕ' } }, // CRITICAL ADDITION
-        { name: 'last_day_worked', type: 'date', required: true, label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ መዓልቲ ዝሰራሕካላ/ሉ' } },
+        { name: 'first_day_worked', type: 'date', required: true, label: { en: 'First Day Worked', am: 'የመጀመሪያ የስራ ቀን', ti: 'ናይ መጀመርያ መዓልቲ ዝጀመርካሉ ዕለት' } }, // CRITICAL ADDITION
+        { name: 'last_day_worked', type: 'date', required: true, label: { en: 'Last Day Worked', am: 'የመጨረሻ የስራ ቀን', ti: 'ናይ መወዳእታ መዓልቲ ዝሰራሕካላ/ሉ ዕለት' } },
         
         { name: 'return_to_work', type: 'select', options: ['Yes', 'No', 'Unknown'], label: { en: 'Do you expect to return to this job?', am: 'ወደዚህ ስራ ይመለሳሉ?', ti: 'ናብዚ ስራሕ ክትምለስ ተስፋ ኣለካ?' } }, // ADDED
 
@@ -281,7 +281,7 @@ const specificFields = {
 
         { name: 'reason_other_explanation', type: 'textarea', label: { en: 'If Other, Quit, or Fired: please explain details', am: 'ሌላ፣ በራስ ፈቃድ ወይም ከስራ የተባረሩ ከሆነ ያብራሩ', ti: 'ካልእ፣ ብፍቃድካ ዝወጻእካ ወይ ዝተባረርካ እንተኾይኑ መግለጺ' } },
 
-        { name: 'family_relationship', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you related to the employer or do you own more than 40% of the voting shares?', am: 'ከአሰሪው ጋር ዝምድና አለዎት ወይም ከ40% በላይ ድርሻ አለዎት?', ti: 'ምስቲ አሰሪ ዝምድና አለካ ዶ ወይስ ካብ 40% ንላዕሊ ናይቲ ድርጅት ዋንነት አለካ?' } }, // CRITICAL ADDITION
+        { name: 'family_relationship', type: 'select', required: true, options: ['Yes', 'No'], label: { en: 'Are you related to the employer or do you own more than 40% of the voting shares?', am: 'ከአሰሪው ጋር ዝምድና አለዎት ወይም ከ40% በላይ ድርሻ አለዎት?', ti: 'ምስ አስራሒ ዝምድና አለካ ዶ ወይ ኣብቲ ትካል ዋንነት አለካ ዶ?' } }, // CRITICAL ADDITION
 
         // ===============================
         // SECTION 3: ROE & MONEY
