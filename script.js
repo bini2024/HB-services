@@ -541,28 +541,98 @@ const specificFields = {
 }
     ],
 
-    'single_status': [ // Statutory Declaration
-        { name: 'full_name', type: 'text', label: { en: 'Full Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
-        { name: 'marital_status', type: 'select', options: ['Never Married', 'Divorced', 'Widowed'], label: { en: 'Current Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
-        { name: 'fiance_name', type: 'text', label: { en: 'Name of Future Spouse', am: 'የሚጋቡት ሰው ስም', ti: 'ሽም መጻምድቲ' } },
-        { name: 'marriage_country', type: 'text', label: { en: 'Country of Marriage', am: 'ጋብቻው የሚፈጸምበት አገር', ti: 'መርዓ ዝግበረሉ ሃገር' } },
-        { name: 'father_name', type: 'text', label: { en: 'Father\'s Name', am: 'የአባት ስም', ti: 'ሽም ኣቦ' } },
-        { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } },
-         { 
-    name: 'additionalInformation', 
-    type: 'textarea', 
-    label: { 
-        en: 'Additional Information', 
-        am: 'ተጨማሪ መረጃ', 
-        ti: 'ተወሳኪ ሓበሬታ' 
-    }, 
-    placeholder: { 
-        en: 'Please provide any additional information here...', 
-        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
-        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
-    } 
-}
-    ],
+   'single_status': [ 
+    // ===============================
+    // SECTION 1: THE DECLARANT (YOU)
+    // ===============================
+    { 
+        name: 'full_name', 
+        type: 'text', 
+        required: true, 
+        label: { en: 'Full Name (as on Passport)', am: 'ሙሉ ስም (በፓስፖርት ላይ እንዳለው)', ti: 'ሙሉእ ስም (ከምቲ ኣብ ፓስፖርት ዘሎ)' } 
+    },
+    { 
+        name: 'current_address', 
+        type: 'textarea', 
+        required: true, 
+        label: { en: 'Current Home Address', am: 'የአሁን የመኖሪያ አድራሻ', ti: 'ናይ ሕጂ ዘለኩምዎ አድራሻ' } 
+    },
+    { 
+        name: 'occupation', 
+        type: 'text', 
+        required: true, 
+        label: { en: 'Occupation', am: 'የስራ ድርሻ/ሙያ', ti: 'ስራሕ/ሞያ' } 
+    },
+
+    // ===============================
+    // SECTION 2: PARENTS
+    // ===============================
+    { 
+        name: 'father_name', 
+        type: 'text', 
+        required: true, 
+        label: { en: 'Father\'s Full Name', am: 'የአባት ሙሉ ስም', ti: 'ናይ ኣቦ ሙሉእ ስም' } 
+    },
+    { 
+        name: 'mother_name', 
+        type: 'text', 
+        required: true, 
+        label: { en: 'Mother\'s Full Name', am: 'የእናት ሙሉ ስም', ti: 'ናይ ኣደ ሙሉእ ስም' } 
+    },
+
+    // ===============================
+    // SECTION 3: MARITAL STATUS
+    // ===============================
+    { 
+        name: 'marital_status', 
+        type: 'select', 
+        required: true, 
+        options: ['Never Married', 'Divorced', 'Widowed'], 
+        label: { en: 'Current Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት ሓዳር' } 
+    },
+
+    // ===============================
+    // SECTION 4: MARRIAGE INTENT (ADDED)
+    // ===============================
+    { 
+        name: 'marriage_country', 
+        type: 'text', 
+        required: true, 
+        label: { en: 'Country where marriage will take place', am: 'ጋብቻው የሚፈጸምበት አገር', ti: 'መርዓ ዝግበረሉ ሃገር' } 
+    },
+
+    // ===============================
+    // SECTION 5: PREVIOUS MARRIAGE INFO (Conditional)
+    // ===============================
+    { 
+        name: 'previous_marriage_end_date', 
+        type: 'date', 
+        label: { en: 'If Divorced/Widowed: Date it ended', am: 'የተፋቱ ወይም የሞተበት ከሆነ፡ የተጠናቀቀበት ቀን', ti: 'ዝተፋታሕኩም ወይ በዓል ቤት ብህይወት እንተዘየልዩ እንተኾይኑ፡ ዝተወድኣሉ ዕለት' } 
+    },
+    { 
+        name: 'divorce_file_number', 
+        type: 'text', 
+        label: { en: 'If Divorced: Court File Number', am: 'የተፋቱ ከሆነ፡ የፍርድ ቤት መዝገብ ቁጥር', ti: 'ዝተፋታሕኩም እንተኾይኑ፡ ናይ ቤት ፍርዲ መዝገብ ቁጽሪ' } 
+    },
+
+    // ===============================
+    // SECTION 6: EXTRA INFO
+    // ===============================
+    { 
+        name: 'additionalInformation', 
+        type: 'textarea', 
+        label: { 
+            en: 'Additional Information', 
+            am: 'ተጨማሪ መረጃ', 
+            ti: 'ተወሳኪ ሓበሬታ' 
+        }, 
+        placeholder: { 
+            en: 'Please provide any additional information here...', 
+            am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+            ti: 'ተወሳኪ ሓበሬታ ኣብዚ የእትዉ...' 
+        } 
+    }
+],
 
     'marriage_cert': [ // Service Ontario
         { name: 'groom_name', type: 'text', label: { en: 'Applicant 1 Name (Groom)', am: 'አመልካች 1 ስም (ሙሽራ)', ti: 'መመርዓዊ' } },
@@ -724,12 +794,145 @@ const specificFields = {
         { name: 'spouse_sin', type: 'text', label: { en: 'Spouse SIN (If applicable)', am: 'የባለቤት SIN (ካለ)', ti: 'ናይ መጻምድቲ SIN (እንተልዩ)' } }
     ],
 
-    'lost_passport': [
-        { name: 'lost_date', type: 'date', label: { en: 'Date Lost/Stolen', am: 'የጠፋበት ቀን', ti: 'ዝጠፍአሉ ዕለት' } },
-        { name: 'police_report', type: 'select', options: ['Yes', 'No'], label: { en: 'Reported to Police?', am: 'ለፖሊስ ተነግሯል?', ti: 'ንፖሊስ ተሓቢሩዶ?' } },
-        { name: 'location_lost', type: 'text', label: { en: 'Location Lost (City, Country)', am: 'የጠፋበት ቦታ', ti: 'ዝጠፍአሉ ቦታ' } },
-        { name: 'explanation', type: 'textarea', label: { en: 'Detailed Explanation', am: 'ዝርዝር ማብራሪያ', ti: 'ዝርዝር መብርሂ' } }
-    ]
+   'passport': [
+        // ===============================
+        // SECTION 1: APPLICATION TYPE (LOGIC TRIGGER)
+        // ===============================
+        { 
+            name: 'application_type', 
+            type: 'select', 
+            required: true, 
+            options: ['New Application (First Time)', 'Renewal', 'Replace Lost or Stolen Passport'], 
+            label: { en: 'Application Type', am: 'የማመልከቻው አይነት', ti: 'ዓይነት ኣመልካቲ' } 
+        },
+
+        // ===============================
+        // SECTION 2: PASSPORT VALIDITY
+        // ===============================
+        { name: 'passport_validity', type: 'select', required: true, options: ['5 Years', '10 Years'], label: { en: 'Passport Validity Period', am: 'የፓስፖርት አገልግሎት ዘመን', ti: 'ናይ ክንደይ ግዜ ፓስፖርት ትደሊ' } },
+
+        // ===============================
+        // SECTION 3: PERSONAL INFORMATION
+        // ===============================
+        { name: 'surname', type: 'text', required: true, label: { en: 'Last Name', am: 'የቤተሰብ ስም', ti: 'ሽም ኣባሓጎ' } },
+        { name: 'given_names', type: 'text', required: true, label: { en: 'Given Name(s)', am: 'የክርስትና ስም', ti: 'ስም' } },
+        { name: 'parent_surname_birth', type: 'text', required: true, label: { en: 'Mother\'s Maiden Name (Surname at Birth)', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ናይ ኣደ ስም ኣባሓጎ(lastname)' } },
+        { name: 'dob', type: 'date', required: true, label: { en: 'Date of Birth (YYYY-MM-DD)', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
+        { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ዝተወለድካሉ/ክሉ ከተማ' } },
+        { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ዝተወለድካሉ/ክሉ ሃገር' } },
+        { name: 'sex', type: 'select', required: true, options: ['F', 'M', 'X'], label: { en: 'Sex / Gender', am: 'ፆታ', ti: 'ጾታ' } },
+        { 
+            name: 'maritalStatus', 
+            type: 'select', 
+            options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
+            label: { 
+                en: 'Marital Status', 
+                am: 'የጋብቻ ሁኔታ', 
+                ti: 'የጋብቻ ሁኔታ' 
+            } 
+        },
+        { name: 'eye_color', type: 'text', required: true, label: { en: 'Eye Colour', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
+        { name: 'height', type: 'text', required: true, label: { en: 'Height (cm or inches)', am: 'ቁመት', ti: 'ቁመት' } },
+
+        // ===============================
+        // SECTION 4: PROOF OF CITIZENSHIP
+        // ===============================
+        { name: 'citizenship_doc_type', type: 'select', required: true, options: ['Birth Certificate (Canada)', 'Citizenship Certificate'], label: { en: 'Citizenship Document Type', am: 'የዜግነት ማረጋገጫ አይነት', ti: 'ዓይነት ሰነድ ዜግነት' } },
+        { name: 'citizenship_doc_number', type: 'text', required: true, label: { en: 'Certificate / Registration Number', am: 'የሰርተፍኬት ቁጥር', ti: 'ቁጽሪ ሰርተፍኬት' } },
+        { name: 'citizenship_issue_date', type: 'date', required: true, label: { en: 'Date of Issue', am: 'የተሰጠበት ቀን', ti: 'ዝተዋህበሉ ዕለት' } },
+
+        // ===============================
+        // SECTION 5: SUPPORTING ID
+        // ===============================
+        { name: 'id_type', type: 'text', required: true, label: { en: 'ID Document Type (e.g. Driver\'s License)', am: 'የመታወቂያ አይነት (መንጃ ፈቃድ)', ti: 'ዓይነት መንነት እተቅርቦ ' } },
+        { name: 'id_number', type: 'text', required: true, label: { en: 'ID Document Number', am: 'የመታወቂያ ቁጥር', ti: 'ቁጽሪ ID ' } },
+        { name: 'id_expiry_date', type: 'date', required: true, label: { en: 'ID Expiry Date', am: 'መታወቂያው የሚያበቃበት ቀን', ti: 'ID ዘብቅዓሉ ዕለት' } },
+
+        // ===============================
+        // SECTION 6: CONTACT & ADDRESSES
+        // ===============================
+        { name: 'home_address', type: 'textarea', required: true, label: { en: 'Current Home Address', am: 'የአሁን መኖሪያ አድራሻ', ti: 'ሕጂ ዘለካ ኣድራሻ' } },
+        { name: 'mailing_address', type: 'textarea', label: { en: 'Mailing Address (if different)', am: 'የፖስታ አድራሻ', ti: 'ኣድራሻ ፖስታ' } },
+        { name: 'phone_primary', type: 'tel', required: true, label: { en: 'Primary Phone Number', am: 'ዋና ስልክ', ti: 'ቁጽሪ ቴሌ.' } },
+        { name: 'email', type: 'email', required: true, label: { en: 'Email Address', am: 'ኢሜይል', ti: 'ኢሜይል' } },
+        { name: 'address_history', type: 'textarea', required: true, label: { en: 'Address History – Last 2 Years (No gaps)', am: 'የአድራሻ ታሪክ (2 ዓመት)', ti: 'ናይ 2 ዓመት ዝተቀመጥካሉ ኣድራሻ ብዝርዝር ጥቀስ' } },
+        { name: 'occupation_history', type: 'textarea', required: true, label: { en: 'Employment / School History – Last 2 Years', am: 'የሥራ/ትምህርት ታሪክ', ti: 'ናይ ስራሕ ወይ ትምህርቲ ዝከድካዮ ኣብዚ 2 ዓመት ብዝርዝር ጥቀስ(ኣድራሻ፣ ዝሰራሕካሉ ትካል ወይ ትምህርቲ) ' } },
+
+        // ===============================
+        // SECTION 7: GUARANTOR
+        // ===============================
+        { name: 'guarantor_full_name', type: 'text', required: true, label: { en: 'Guarantor Full Name', am: 'የዋስ ሙሉ ስም', ti: 'ሙሉእ ስም ዋሕስ' } },
+        { name: 'guarantor_ppt_number', type: 'text', required: true, label: { en: 'Guarantor Passport Number', am: 'የዋስ ፓስፖርት ቁጥር', ti: 'ቁጽሪ ፓስፖርት ዋሕስ' } },
+        { name: 'guarantor_issue_date', type: 'date', required: true, label: { en: 'Guarantor Passport Issue Date', am: 'ፓስፖርቱ የተሰጠበት ቀን', ti: 'ፓስፖርት ዝተወሃበሉ ዕለት' } },
+        { name: 'guarantor_expiry_date', type: 'date', required: true, label: { en: 'Guarantor Passport Expiry Date', am: 'ፓስፖርቱ የሚያበቃበት ቀን', ti: 'ፓስፖርት ዘብቅዓሉ ዕለት' } },
+        { name: 'guarantor_phone', type: 'tel', required: true, label: { en: 'Guarantor Phone Number', am: 'የዋስ ስልክ', ti: 'ቁጽሪ ቴሌ. ዋሕስ' } },
+        { name: 'guarantor_known_years', type: 'number', required: true, label: { en: 'Years Known Guarantor', am: 'ዋሱ ስንት ዓመት ያውቅዎታል?', ti: 'ንክንደይ ግዜ ትፋለጡ ምስ ዋሕስ?' } },
+
+        // ===============================
+        // SECTION 8: REFERENCES
+        // ===============================
+        { name: 'reference_1', type: 'textarea', required: true, label: { en: 'Reference 1 (Name, Phone, Address, Relationship)', am: 'መወከሲ 1', ti: 'ምስክር 1 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+        { name: 'reference_2', type: 'textarea', required: true, label: { en: 'Reference 2 (Name, Phone, Address, Relationship)', am: 'መወከሲ 2', ti: 'ምስክር 2 (ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+
+        // ===============================
+        // SECTION 9: LOST / STOLEN DETAILS (ONLY SHOW IF "LOST" SELECTED)
+        // ===============================
+        { 
+            name: 'lost_passport_number', 
+            type: 'text', 
+            label: { en: 'Lost Passport Number (if known)', am: 'የጠፋው ፓስፖርት ቁጥር (የሚያውቁት ከሆነ)', ti: 'ቁጽሪ ናይ ዝጠፍአ ፓስፖርት (ትፈልጥዎ እንተኾንኩም)' } 
+        },
+        { 
+            name: 'date_of_loss', 
+            type: 'date', 
+            // required: true, // Only require if Lost/Stolen selected
+            label: { en: 'Date of Loss/Theft', am: 'የጠፋበት ወይም የተሰረቀበት ቀን', ti: 'ዝጠፍኣሉ ወይ ዝተሰርቀሉ ዕለት' } 
+        },
+        { 
+            name: 'location_of_loss', 
+            type: 'text', 
+            // required: true, // Only require if Lost/Stolen selected
+            label: { en: 'Location where it was lost/stolen (City, Country)', am: 'የጠፋበት ወይም የተሰረቀበት ቦታ (ከተማ፣ ሀገር)', ti: 'ዝጠፍኣሉ ወይ ዝተሰርቀሉ ቦታ (ከተማ፣ ሃገር)' } 
+        },
+        { 
+            name: 'police_report_filed', 
+            type: 'select', 
+            // required: true, // Only require if Lost/Stolen selected
+            options: ['Yes', 'No'], 
+            label: { en: 'Did you file a police report?', am: 'ለፖሊስ አሳውቀዋል?', ti: 'ንፖሊስ ሓቢርኩም ዶ?' } 
+        },
+        { 
+            name: 'police_file_number', 
+            type: 'text', 
+            label: { en: 'Police File Number (if applicable)', am: 'የፖሊስ መዝገብ ቁጥር', ti: 'ናይ ፖሊስ መዝገብ ቁጽሪ' } 
+        },
+        { 
+            name: 'loss_explanation', 
+            type: 'textarea', 
+            // required: true, // Only require if Lost/Stolen selected
+            label: { en: 'Explain specifically how it was lost or stolen', am: 'እንዴት እንደጠፋ ወይም እንደተሰረቀ በዝርዝር ያስረዱ', ti: 'ብኸመይ ከምዝጠፍአ ወይ ከምዝተሰርቀ ብዝርዝር ግለጹ' },
+            placeholder: { en: 'Example: I left my bag on the train...', am: 'ምሳሌ፡ ባቡር ውስጥ ቦርሳዬን ረሳሁ...', ti: 'ኣብነት፡ ኣብ ባቡር ቦርሳይ ረሲዐ...' }
+        },
+
+        // ===============================
+        // SECTION 10: EMERGENCY CONTACT & EXTRA
+        // ===============================
+        { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+        { 
+            name: 'additionalInformation', 
+            type: 'textarea', 
+            label: { 
+                en: 'Additional Information', 
+                am: 'ተጨማሪ መረጃ', 
+                ti: 'ተወሳኪ ሓበሬታ' 
+            }, 
+            placeholder: { 
+                en: 'Please provide any additional information here...', 
+                am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+                ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+            } 
+        }
+    ],
 };
 
 
