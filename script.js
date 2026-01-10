@@ -69,6 +69,17 @@ const specificFields = {
     { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ዝተወለድካሉ/ክሉ ከተማ' } },
 
     { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ዝተወለድካሉ/ክሉ ሃገር' } },
+       { 
+    name: 'maritalStatus', 
+    type: 'select', 
+    options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
+    label: { 
+        en: 'Marital Status', 
+        am: 'የጋብቻ ሁኔታ', 
+        ti: 'የጋብቻ ሁኔታ' 
+    } 
+},
+
 
     { name: 'sex', type: 'select', required: true, options: ['F', 'M', 'X'], label: { en: 'Sex / Gender', am: 'ፆታ', ti: 'ጾታ' } },
 
@@ -159,6 +170,17 @@ const specificFields = {
         { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ዝተወለድካሉ/ክሉ ከተማ' } },
         { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ዝተወለድካሉ/ክሉ ሃገር' } },
         { name: 'sex', type: 'select', required: true, options: ['F', 'M', 'X'], label: { en: 'Sex / Gender', am: 'ፆታ', ti: 'ጾታ' } },
+       { 
+    name: 'maritalStatus', 
+    type: 'select', 
+    options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
+    label: { 
+        en: 'Marital Status', 
+        am: 'የጋብቻ ሁኔታ', 
+        ti: 'የጋብቻ ሁኔታ' 
+    } 
+},
+
         { name: 'eye_color', type: 'text', required: true, label: { en: 'Eye Colour', am: 'የአይን ቀለም', ti: 'ሕብሪ ዓይኒ' } },
         { name: 'height', type: 'text', required: true, label: { en: 'Height (cm or inches)', am: 'ቁመት', ti: 'ቁመት' } },
 
@@ -243,6 +265,17 @@ const specificFields = {
         options: ['Male', 'Female', 'X', 'Another Gender'], 
         label: { en: 'Gender', am: 'ጾታ', ti: 'ጾታ' } 
     },
+        { 
+    name: 'maritalStatus', 
+    type: 'select', 
+    options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
+    label: { 
+        en: 'Marital Status', 
+        am: 'የጋብቻ ሁኔታ', 
+        ti: 'የጋብቻ ሁኔታ' 
+    } 
+},
+
     { 
         name: 'height', 
         type: 'text', 
