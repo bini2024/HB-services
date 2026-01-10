@@ -242,7 +242,22 @@ const specificFields = {
         // ===============================
         // SECTION 8: EMERGENCY CONTACT (Optional)
         // ===============================
-        { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } }
+        { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+       { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
+
     ],
 
     'citizenship': [
@@ -488,14 +503,42 @@ const specificFields = {
         type: 'checkbox', 
         required: true, 
         label: { en: 'I declare that the information provided is true, complete, and correct.', am: 'የሰጠሁት መረጃ እውነት፣ የተሟላ እና ትክክለኛ መሆኑን አረጋግጣለሁ።', ti: 'ዝሃብክዎ ሓበሬታ ሓቂ፣ ዝተማልአን ትክክልን ምዃኑ የረጋግጽ።' } 
-    }
+    },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
 ],
 
     'health_card': [ // Based on OHIP 0265-82
         { name: 'status_doc', type: 'select', options: ['PR Card', 'Work Permit', 'Confirmation of PR'], label: { en: 'Immigration Document', am: 'የኢሚግሬሽን ሰነድ', ti: 'ናይ ኢሚግሬሽን ሰነድ' } },
         { name: 'residency_doc', type: 'select', options: ['Drivers License', 'Bank Statement', 'Lease Agreement', 'Pay Stub'], label: { en: 'Proof of Address (Ontario)', am: 'የአድራሻ ማረጋገጫ', ti: 'ናይ ኣድራሻ መረጋገጺ' } },
         { name: 'arrival_date_canada', type: 'date', label: { en: 'Date Arrived in Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
-        { name: 'arrival_date_ontario', type: 'date', label: { en: 'Date Arrived in Ontario', am: 'ኦንታሪዮ የገቡበት ቀን', ti: 'ናብ ኦንታሪዮ ዝኣተውሉ ዕለት' } }
+        { name: 'arrival_date_ontario', type: 'date', label: { en: 'Date Arrived in Ontario', am: 'ኦንታሪዮ የገቡበት ቀን', ti: 'ናብ ኦንታሪዮ ዝኣተውሉ ዕለት' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
     ],
 
     'single_status': [ // Statutory Declaration
@@ -504,21 +547,64 @@ const specificFields = {
         { name: 'fiance_name', type: 'text', label: { en: 'Name of Future Spouse', am: 'የሚጋቡት ሰው ስም', ti: 'ሽም መጻምድቲ' } },
         { name: 'marriage_country', type: 'text', label: { en: 'Country of Marriage', am: 'ጋብቻው የሚፈጸምበት አገር', ti: 'መርዓ ዝግበረሉ ሃገር' } },
         { name: 'father_name', type: 'text', label: { en: 'Father\'s Name', am: 'የአባት ስም', ti: 'ሽም ኣቦ' } },
-        { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } }
+        { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Name', am: 'የእናት ስም', ti: 'ሽም ኣደ' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
     ],
 
     'marriage_cert': [ // Service Ontario
         { name: 'groom_name', type: 'text', label: { en: 'Applicant 1 Name (Groom)', am: 'አመልካች 1 ስም (ሙሽራ)', ti: 'መመርዓዊ' } },
         { name: 'bride_name', type: 'text', label: { en: 'Applicant 2 Name (Bride)', am: 'አመልካች 2 ስም (ሙሽሪት)', ti: 'መመርዓዊት' } },
         { name: 'marriage_date', type: 'date', label: { en: 'Date of Marriage', am: 'የጋብቻ ቀን', ti: 'ዝተመርዓዉሉ ዕለት' } },
-        { name: 'marriage_city', type: 'text', label: { en: 'City of Marriage', am: 'ጋብቻው የተፈጸመበት ከተማ', ti: 'መርዓ ዝተፈጸመሉ ከተማ' } }
+        { name: 'marriage_city', type: 'text', label: { en: 'City of Marriage', am: 'ጋብቻው የተፈጸመበት ከተማ', ti: 'መርዓ ዝተፈጸመሉ ከተማ' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
     ],
 
     'death_cert': [
         { name: 'deceased_name', type: 'text', label: { en: 'Deceased Full Name', am: 'የሟች ሙሉ ስም', ti: 'ሙሉእ ሽም መዋቲ' } },
         { name: 'date_death', type: 'date', label: { en: 'Date of Death', am: 'የሞቱበት ቀን', ti: 'ዝሞትሉ ዕለት' } },
         { name: 'place_death', type: 'text', label: { en: 'Place of Death (City)', am: 'የሞቱበት ከተማ', ti: 'ዝሞትሉ ከተማ' } },
-        { name: 'applicant_relationship', type: 'text', label: { en: 'Your Relationship to Deceased', am: 'ከሟች ጋር ያሎት ዝምድና', ti: 'ምስ መዋቲ ዘለኩም ዝምድና' } }
+        { name: 'applicant_relationship', type: 'text', label: { en: 'Your Relationship to Deceased', am: 'ከሟች ጋር ያሎት ዝምድና', ti: 'ምስ መዋቲ ዘለኩም ዝምድና' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
+        
     ],
 
     'sin_card': [
@@ -526,7 +612,21 @@ const specificFields = {
         { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለተ ልደት' } },
         { name: 'father_name', type: 'text', label: { en: 'Father\'s Name', am: 'የአባት ስም', ti: 'ሽም ኣቦ' } },
         { name: 'mother_name', type: 'text', label: { en: 'Mother\'s Maiden Name', am: 'የእናት ስም (ከጋብቻ በፊት)', ti: 'ሽም ኣደ (ቅድሚ መውስቦ)' } },
-        { name: 'status_doc_type', type: 'select', options: ['PR Card', 'Work Permit', 'Refugee Doc'], label: { en: 'Primary Document Type', am: 'የመታወቂያ አይነት', ti: 'ዓይነት መታወቒ' } }
+        { name: 'status_doc_type', type: 'select', options: ['PR Card', 'Work Permit', 'Refugee Doc'], label: { en: 'Primary Document Type', am: 'የመታወቂያ አይነት', ti: 'ዓይነት መታወቒ' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
     ],
 
     'ei_benefit': [
@@ -600,7 +700,22 @@ const specificFields = {
         // ===============================
         { name: 'bank_institution_number', type: 'text', required: true, label: { en: 'Bank Institution Number (3 digits)', am: 'የባንክ መለያ ቁጥር (3 አሃዝ)', ti: 'ቁጽሪ ባንኪ (3 ቁጽርታት)' } },
         { name: 'bank_transit_number', type: 'text', required: true, label: { en: 'Transit Number (5 digits)', am: 'ትራንዚት ቁጥር (5 አሃዝ)', ti: ' Transit number  (5 ቁጽርታት)' } },
-        { name: 'bank_account_number', type: 'text', required: true, label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'bank account' } }
+        { name: 'bank_account_number', type: 'text', required: true, label: { en: 'Account Number', am: 'የሂሳብ ቁጥር', ti: 'bank account' } },
+         { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
+        
     ],
     'oas': [
         { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
