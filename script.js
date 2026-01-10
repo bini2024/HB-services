@@ -794,7 +794,7 @@ const specificFields = {
         { name: 'spouse_sin', type: 'text', label: { en: 'Spouse SIN (If applicable)', am: 'የባለቤት SIN (ካለ)', ti: 'ናይ መጻምድቲ SIN (እንተልዩ)' } }
     ],
 
-   'passport': [
+   'lost_passport': [
         // ===============================
         // SECTION 1: APPLICATION TYPE (LOGIC TRIGGER)
         // ===============================
