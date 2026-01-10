@@ -150,7 +150,22 @@ const specificFields = {
     // ===============================
     // SECTION 8: EMERGENCY CONTACT
     // ===============================
-    { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Optional)', am: 'የአደጋ ጊዜ ግንኙነት', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } }
+    { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Optional)', am: 'የአደጋ ጊዜ ግንኙነት', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
+       { 
+    name: 'additionalInformation', 
+    type: 'textarea', 
+    label: { 
+        en: 'Additional Information', 
+        am: 'ተጨማሪ መረጃ', 
+        ti: 'ተወሳኪ ሓበሬታ' 
+    }, 
+    placeholder: { 
+        en: 'Please provide any additional information here...', 
+        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+    } 
+}
+
 
 ]
 ,
