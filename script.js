@@ -208,6 +208,135 @@ const specificFields = {
         { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } }
     ],
 
+    'citizenship': [
+    // ===============================
+    // SECTION 1: LANGUAGE & TYPE
+    // ===============================
+    { name: 'service_language', type: 'select', required: true, options: ['English', 'French'], label: { en: 'Language you prefer for service' } },
+    { name: 'special_needs', type: 'select', options: ['No', 'Yes'], label: { en: 'Do you have special needs requiring accommodation (wheelchair, braille, sign language)?' } },
+    // If Yes -> Show Textarea for details
+
+    // ===============================
+    // SECTION 2: IDENTITY & STATUS
+    // ===============================
+    { name: 'uci_number', type: 'text', required: true, label: { en: 'Unique Client Identifier (UCI) as shown on your PR Card' } },
+    { name: 'full_name_pr', type: 'text', required: true, label: { en: 'Name exactly as it appears on your PR Card' } },
+    { name: 'name_change', type: 'select', options: ['No', 'Yes'], label: { en: 'Have you legally changed your name?' } },
+    // If Yes -> Upload Legal Name Change Document
+    
+    { name: 'gender', type: 'select', options: ['Male', 'Female', 'X', 'Another Gender'], label: { en: 'Gender' } },
+    { name: 'height', type: 'text', required: true, label: { en: 'Height (cm or ft/in)' } },
+    { name: 'eye_colour', type: 'select', options: ['Brown', 'Blue', 'Green', 'Hazel', 'Grey', 'Black', 'Other'], label: { en: 'Eye Colour' } },
+    { name: 'date_of_birth', type: 'date', required: true, label: { en: 'Date of Birth' } },
+    { name: 'place_of_birth_city', type: 'text', required: true, label: { en: 'City/Town of Birth' } },
+    { name: 'place_of_birth_country', type: 'text', required: true, label: { en: 'Country/Territory of Birth' } },
+
+    // ===============================
+    // SECTION 3: RESIDENCE & CONTACT
+    // ===============================
+    { name: 'home_address', type: 'textarea', required: true, label: { en: 'Current Home Address' } },
+    { name: 'mailing_address_same', type: 'select', options: ['Yes', 'No'], label: { en: 'Is your mailing address the same as your home address?' } },
+    { name: 'phone_number', type: 'text', required: true, label: { en: 'Phone Number' } },
+    { name: 'email_address', type: 'text', required: true, label: { en: 'Email Address' } },
+
+    // ===============================
+    // SECTION 4: PHYSICAL PRESENCE (THE HARDEST PART)
+    // ===============================
+    // LOGIC NOTE: The user must prove they have been in Canada for 1095 days in the last 5 years.
+    { name: 'residence_calculation_method', type: 'select', options: ['Online Calculator', 'Manual Form (CIT 0407)'], label: { en: 'How did you calculate your physical presence?' } },
+    
+    // REPEATER FIELD: ADDRESS HISTORY (Must cover 5 years with NO GAPS)
+    { 
+      name: 'address_history', 
+      type: 'repeater', 
+      label: { en: 'List all addresses inside and outside Canada for the last 5 years' },
+      fields: [
+         { name: 'address', type: 'text', label: { en: 'Street Address & City' } },
+         { name: 'country', type: 'text', label: { en: 'Country' } },
+         { name: 'from_date', type: 'date', label: { en: 'From' } },
+         { name: 'to_date', type: 'date', label: { en: 'To' } }
+      ]
+    },
+
+    // ===============================
+    // SECTION 5: WORK & EDUCATION HISTORY
+    // ===============================
+    // REPEATER FIELD: Must cover 5 years with NO GAPS.
+    // If unemployed, they must list "Unemployed" as the activity.
+    { 
+      name: 'activity_history', 
+      type: 'repeater', 
+      label: { en: 'Work and Education history for the last 5 years' },
+      fields: [
+         { name: 'activity_type', type: 'select', options: ['Work', 'Education', 'Unemployed', 'Homemaker', 'Retired', 'Volunteer'], label: { en: 'Activity Type' } },
+         { name: 'employer_school_name', type: 'text', label: { en: 'Name of Employer or School' } },
+         { name: 'city_country', type: 'text', label: { en: 'City and Country' } },
+         { name: 'from_date', type: 'date', label: { en: 'From' } },
+         { name: 'to_date', type: 'date', label: { en: 'To' } }
+      ]
+    },
+
+    // ===============================
+    // SECTION 6: INCOME TAX FILING
+    // ===============================
+    { name: 'sin_number', type: 'text', required: true, label: { en: 'Social Insurance Number (SIN)' } },
+    { name: 'tax_filing_history', type: 'checkbox_group', options: ['2024', '2023', '2022', '2021', '2020'], label: { en: 'Check the years you filed income taxes in Canada (Must be at least 3 of the last 5 years)' } },
+    // LOGIC: If fewer than 3 are checked, warn the user they are not eligible.
+
+    // ===============================
+    // SECTION 7: LANGUAGE PROOF (Ages 18-54)
+    // ===============================
+    // LOGIC: Only ask this if Age is between 18 and 54.
+    { name: 'language_proof_type', type: 'select', options: [
+        'Test Results (CELPIP, IELTS, TEF)', 
+        'Certificate from LINC/CLIC program', 
+        'Diploma/Transcript from Secondary or Post-Secondary (English/French)', 
+        'None'
+    ], label: { en: 'Language Evidence' } },
+
+    // ===============================
+    // SECTION 8: PROHIBITIONS (CRIMINAL HISTORY) - "THE DEEP PART"
+    // ===============================
+    // WARNING: These must be specific. A "Yes" to any of these usually pauses the application.
+
+    // 8a. Criminality inside Canada
+    { name: 'crime_inside_canada', type: 'select', options: ['Yes', 'No'], label: { en: 'Are you currently charged with, on trial for, or appealing an offence in Canada?' } },
+    { name: 'convicted_inside_canada', type: 'select', options: ['Yes', 'No'], label: { en: 'In the past 4 years, have you been convicted of an indictable offence in Canada?' } },
+    
+    // 8b. Criminality outside Canada
+    { name: 'crime_outside_canada', type: 'select', options: ['Yes', 'No'], label: { en: 'Are you currently charged with, on trial for, or appealing an offence outside Canada?' } },
+    { name: 'convicted_outside_canada', type: 'select', options: ['Yes', 'No'], label: { en: 'In the past 4 years, have you been convicted of an offence outside Canada?' } },
+
+    // 8c. Serving a Sentence (The "Parole" Trap)
+    { name: 'serving_sentence', type: 'select', options: ['Yes', 'No'], label: { en: 'Are you currently currently serving a term of imprisonment, on parole, or on probation?' } },
+    // LOGIC: If "Yes", they are NOT eligible to apply yet.
+
+    // 8d. Immigration & Other
+    { name: 'under_removal_order', type: 'select', options: ['Yes', 'No'], label: { en: 'Are you under a removal order (asked to leave Canada)?' } },
+    { name: 'war_crimes', type: 'select', options: ['Yes', 'No'], label: { en: 'Have you ever been investigated for or convicted of a war crime or crime against humanity?' } },
+    { name: 'citizenship_refusal', type: 'select', options: ['Yes', 'No'], label: { en: 'Have you had a Canadian citizenship application refused in the past 5 years for misrepresentation?' } },
+    { name: 'revocation', type: 'select', options: ['Yes', 'No'], label: { en: 'Have you ever had your Canadian citizenship or PR status revoked?' } },
+
+    // ===============================
+    // SECTION 9: OTHER CITIZENSHIPS
+    // ===============================
+    { name: 'other_citizenships', type: 'select', options: ['Yes', 'No'], label: { en: 'Are you a citizen of any other country?' } },
+    // If Yes -> List countries.
+    // If Yes -> "Do you have permanent resident status in any other country?"
+
+    // ===============================
+    // SECTION 10: POLICE CERTIFICATES (LOGIC TRIGGER)
+    // ===============================
+    { name: 'lived_outside_183_days', type: 'select', options: ['Yes', 'No'], label: { en: 'In the past 4 years, were you in a country other than Canada for 183 days or more in a row?' } },
+    // LOGIC: If Yes -> "Upload Police Certificate for [Country Name]"
+
+    // ===============================
+    // SECTION 11: CONSENT
+    // ===============================
+    { name: 'elections_canada_consent', type: 'select', options: ['Yes', 'No'], label: { en: 'Do you authorize IRCC to give your name to Elections Canada to be added to the Register of Electors?' } },
+    { name: 'declaration_truth', type: 'checkbox', required: true, label: { en: 'I declare that the information provided is true, complete, and correct.' } }
+],
+
     'health_card': [ // Based on OHIP 0265-82
         { name: 'status_doc', type: 'select', options: ['PR Card', 'Work Permit', 'Confirmation of PR'], label: { en: 'Immigration Document', am: 'የኢሚግሬሽን ሰነድ', ti: 'ናይ ኢሚግሬሽን ሰነድ' } },
         { name: 'residency_doc', type: 'select', options: ['Drivers License', 'Bank Statement', 'Lease Agreement', 'Pay Stub'], label: { en: 'Proof of Address (Ontario)', am: 'የአድራሻ ማረጋገጫ', ti: 'ናይ ኣድራሻ መረጋገጺ' } },
