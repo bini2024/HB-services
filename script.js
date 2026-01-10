@@ -208,7 +208,7 @@ const specificFields = {
         { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Name, Phone, Address)', am: 'የአደጋ ጊዜ ተጠሪ', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } }
     ],
 
-    'citizenship_application': [
+    'citizenship': [
     // ===============================
     // SECTION 1: IDENTITY & STATUS
     // ===============================
