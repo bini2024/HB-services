@@ -1,26 +1,25 @@
 // --- FIREBASE SETUP ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 // Your Config
 const firebaseConfig = {
-    apiKey: "AIzaSy...",
-    authDomain: "your-app.firebaseapp.com",
-    projectId: "your-app",
-    storageBucket: "your-app.appspot.com",
-    messagingSenderId: "123...",
-    appId: "1:123..."
+  apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
+  authDomain: "hb-services-87372.firebaseapp.com",
+  projectId: "hb-services-87372",
+  storageBucket: "hb-services-87372.firebasestorage.app",
+  messagingSenderId: "326833059312",
+  appId: "1:326833059312:web:cee34d9ec63c4adfd21935"
 };
 
-// Initialize Firebase safely
 let db, storage;
 try {
     const app = initializeApp(firebaseConfig);
     db = getFirestore(app);
     storage = getStorage(app);
+    console.log("Firebase Connected Successfully");
 } catch (e) {
-    console.log("Firebase keys missing - UI Mode only");
+    console.error("Firebase Connection Failed:", e);
 }
 
 // --- STATE MANAGEMENT ---
@@ -1055,38 +1054,67 @@ window.handleFormSubmit = async (e) => {
     btn.innerHTML = `<span class="spinner"></span> Processing...`;
     btn.disabled = true;
 
-    // 3. Collect Data
-    let formData = {
-        service: currentService,
-        timestamp: new Date(),
-        data: {}
-    };
-    
-    const inputs = form.querySelectorAll('input, select, textarea');
-    inputs.forEach(input => {
-        if(input.type !== 'file') {
-            formData.data[input.name] = input.value;
-        }
-    });
-
-    // 4. Submit to Firebase
     try {
+        // 3. Handle File Uploads (FIREBASE STORAGE)
+        const fileInput = document.getElementById('file-input');
+        const uploadedFileUrls = [];
+
+        // Only upload if files exist and storage is connected
+        if (fileInput && fileInput.files.length > 0 && storage) {
+            for (const file of fileInput.files) {
+                // Create unique name: timestamp_filename
+                const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+                
+                // Upload file
+                const snapshot = await uploadBytes(storageRef, file);
+                
+                // Get the internet-accessible URL
+                const downloadURL = await getDownloadURL(snapshot.ref);
+                uploadedFileUrls.push({
+                    name: file.name,
+                    url: downloadURL,
+                    type: file.type
+                });
+            }
+        }
+
+        // 4. Collect Text Data
+        let formData = {
+            service: currentService,
+            status: 'new',
+            submittedAt: serverTimestamp(), // Uses Firebase Server Time
+            language: currentLang,
+            documents: uploadedFileUrls, // Save the file links here
+            data: {}
+        };
+        
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            // Skip files (handled above) and submit buttons
+            if(input.type !== 'file' && input.type !== 'submit') {
+                if (input.name) {
+                    formData.data[input.name] = input.value;
+                }
+            }
+        });
+
+        // 5. Submit to Firestore
         if(db) {
             await addDoc(collection(db, "submissions"), formData);
             showToast("Application submitted successfully!");
-            setTimeout(() => location.reload(), 2000);
+            setTimeout(() => location.reload(), 2500);
         } else {
+            // Fallback if no Database connection
             console.log("TEST MODE DATA:", formData);
-            // Simulate network delay
             await new Promise(r => setTimeout(r, 1500));
             showToast("Success (Test Mode)! Check Console.");
-            
-            // Reset form UI
             btn.innerHTML = originalText;
             btn.disabled = false;
             form.reset();
         }
+
     } catch(err) {
+        console.error(err);
         showToast("Error: " + err.message, "error");
         btn.innerHTML = originalText;
         btn.disabled = false;
