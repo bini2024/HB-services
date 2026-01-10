@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Application Status - Habesha Services</title>
+    <style>
+        :root { --primary: #28a745; --bg: #f9fbf9; --text: #2c3e50; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        
+        .status-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; margin-top: 50px; }
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        p { color: #666; margin-bottom: 30px; }
+        
+        input { width: 80%; padding: 15px; border: 2px solid #eee; border-radius: 8px; font-size: 1.1rem; text-align: center; letter-spacing: 1px; margin-bottom: 20px; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        button { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; }
+        button:hover { background: #1e7e34; }
+
+        /* RESULTS BOX */
+        #result-box { margin-top: 30px; display: none; padding: 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; margin-top: 10px; }
+        
+        .status-new { background: #e3f2fd; color: #1976d2; }
+        .status-in_progress { background: #fff3e0; color: #f57c00; }
+        .status-completed { background: #e8f5e9; color: #2e7d32; }
+
+        .back-link { margin-top: 20px; display: block; color: #888; text-decoration: none; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="status-card">
+        <h1>Track Application</h1>
+        <p>Enter your Tracking ID to check the status of your documents.</p>
+        
+        <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." />
+        <button onclick="checkStatus()">Check Status</button>
+
+        <div id="result-box">
+            <h3 style="margin:0;">Application Found</h3>
+            <p id="res-service" style="margin: 5px 0 15px 0; font-weight:600;">Passport Application</p>
+            <div style="text-align:left; font-size:0.9rem; color:#555; line-height:1.6;">
+                <strong>Applicant:</strong> <span id="res-name"></span><br>
+                <strong>Submitted:</strong> <span id="res-date"></span><br>
+            </div>
+            <div style="margin-top:20px;">
+                Current Status:<br>
+                <span id="res-status" class="status-badge">Checking...</span>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-link">← Back to Home</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+        // USE YOUR EXACT CONFIG HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
+            authDomain: "hb-services-87372.firebaseapp.com",
+            projectId: "hb-services-87372",
+            storageBucket: "hb-services-87372.firebasestorage.app",
+            messagingSenderId: "326833059312",
+            appId: "1:326833059312:web:cee34d9ec63c4adfd21935"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkStatus = async () => {
+            const id = document.getElementById('track-id').value.trim();
+            const resBox = document.getElementById('result-box');
+            
+            if(!id) return alert("Please enter an ID");
+
+            try {
+                const docRef = doc(db, "submissions", id);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Show Data
+                    document.getElementById('res-service').innerText = (data.service || 'Application').toUpperCase().replace(/_/g, ' ');
+                    document.getElementById('res-name').innerText = data.data.full_name || data.data.surname || 'Unknown';
+                    
+                    // Format Date
+                    let dateStr = "N/A";
+                    if(data.submittedAt) dateStr = new Date(data.submittedAt.seconds * 1000).toLocaleDateString();
+                    document.getElementById('res-date').innerText = dateStr;
+
+                    // Status Badge
+                    const statusSpan = document.getElementById('res-status');
+                    statusSpan.innerText = (data.status || 'New').replace(/_/g, ' ');
+                    statusSpan.className = `status-badge status-${data.status || 'new'}`;
+
+                    resBox.style.display = 'block';
+                } else {
+                    alert("No application found with that ID. Please check and try again.");
+                    resBox.style.display = 'none';
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error fetching status. Please try again.");
+            }
+        };
+    </script>
+</body>
+</html>
