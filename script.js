@@ -1099,10 +1099,18 @@ window.handleFormSubmit = async (e) => {
         });
 
         // 5. Submit to Firestore
+       // 5. Submit to Firestore
         if(db) {
-            await addDoc(collection(db, "submissions"), formData);
+            const docRef = await addDoc(collection(db, "submissions"), formData);
+            
+            // Show the success message on screen
             showToast("Application submitted successfully!");
-            setTimeout(() => location.reload(), 2500);
+            
+            // POPUP with the Tracking ID so they can copy it
+            alert(`✅ SUCCESS!\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease write this down or screenshot it to check your status later.`);
+            
+            // Reload the page after they click "OK" on the alert
+            location.reload();
         } else {
             // Fallback if no Database connection
             console.log("TEST MODE DATA:", formData);
