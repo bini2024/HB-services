@@ -1037,38 +1037,38 @@ function renderFields(fieldList) {
     });
 }
 
-// --- SUBMISSION LOGIC ---
+// --- SUBMISSION LOGIC (REAL MODE ONLY) ---
 window.handleFormSubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btn-submit');
     const form = document.getElementById('main-form');
     
-    // 1. Validation
+    // 1. Check if Firebase is ready
+    if (!db) {
+        alert("CRITICAL ERROR: Firebase is not connected.\n\nCheck your API Keys and Internet Connection.");
+        return;
+    }
+
+    // 2. Validation
     if(!validateForm()) {
         showToast("Please fill in all required fields.", "error");
         return;
     }
 
-    // 2. Set Loading State
+    // 3. Set Loading State
     const originalText = btn.innerText;
-    btn.innerHTML = `<span class="spinner"></span> Processing...`;
+    btn.innerHTML = `<span class="spinner"></span> Generating ID...`;
     btn.disabled = true;
 
     try {
-        // 3. Handle File Uploads (FIREBASE STORAGE)
+        // 4. Handle File Uploads
         const fileInput = document.getElementById('file-input');
         const uploadedFileUrls = [];
 
-        // Only upload if files exist and storage is connected
-        if (fileInput && fileInput.files.length > 0 && storage) {
+        if (fileInput && fileInput.files.length > 0) {
             for (const file of fileInput.files) {
-                // Create unique name: timestamp_filename
                 const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
-                
-                // Upload file
                 const snapshot = await uploadBytes(storageRef, file);
-                
-                // Get the internet-accessible URL
                 const downloadURL = await getDownloadURL(snapshot.ref);
                 uploadedFileUrls.push({
                     name: file.name,
@@ -1078,52 +1078,50 @@ window.handleFormSubmit = async (e) => {
             }
         }
 
-        // 4. Collect Text Data
+        // 5. Collect Data
         let formData = {
             service: currentService,
             status: 'new',
-            submittedAt: serverTimestamp(), // Uses Firebase Server Time
+            submittedAt: serverTimestamp(),
             language: currentLang,
-            documents: uploadedFileUrls, // Save the file links here
+            documents: uploadedFileUrls,
             data: {}
         };
         
         const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            // Skip files (handled above) and submit buttons
-            if(input.type !== 'file' && input.type !== 'submit') {
-                if (input.name) {
-                    formData.data[input.name] = input.value;
-                }
+            if(input.type !== 'file' && input.type !== 'submit' && input.name) {
+                formData.data[input.name] = input.value;
             }
         });
 
-        // 5. Submit to Firestore
-       // 5. Submit to Firestore
-        if(db) {
-            const docRef = await addDoc(collection(db, "submissions"), formData);
-            
-            // Show the success message on screen
-            showToast("Application submitted successfully!");
-            
-            // POPUP with the Tracking ID so they can copy it
-            alert(`✅ SUCCESS!\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease write this down or screenshot it to check your status later.`);
-            
-            // Reload the page after they click "OK" on the alert
+        // 6. SUBMIT TO REAL DATABASE
+        // This line generates the REAL ID
+        const docRef = await addDoc(collection(db, "submissions"), formData);
+        
+        console.log("SUCCESS! Real ID:", docRef.id);
+
+        // 7. Success Alert
+        showToast("Application submitted successfully!");
+        
+        // Slight delay to ensure the Toast is seen
+        setTimeout(() => {
+            alert(`✅ APPLICATION SUCCESSFUL\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease take a screenshot of this ID.`);
             location.reload();
-        } else {
-            // Fallback if no Database connection
-            console.log("TEST MODE DATA:", formData);
-            await new Promise(r => setTimeout(r, 1500));
-            showToast("Success (Test Mode)! Check Console.");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-            form.reset();
-        }
+        }, 500);
 
     } catch(err) {
-        console.error(err);
-        showToast("Error: " + err.message, "error");
+        console.error("Submission Error:", err);
+        
+        // SPECIFIC ERROR MESSAGES
+        if (err.code === 'permission-denied') {
+            alert("❌ Database Permission Denied.\n\nGo to Firebase Console -> Firestore -> Rules\nChange to: allow create: if true;");
+        } else if (err.code === 'unavailable') {
+            alert("❌ Network Error.\n\nCheck your internet connection.");
+        } else {
+            alert("❌ Error: " + err.message);
+        }
+
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
