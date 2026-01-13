@@ -17,11 +17,10 @@ body {
     color: var(--text-dark);
     margin: 0;
     min-height: 100vh;
-    position: relative; /* Critical for watermark */
+    position: relative;
 }
 
 /* --- CANADA FLAG WATERMARK --- */
-/* Professional Grayscale & Low Opacity */
 body::before {
     content: "";
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg');
@@ -33,8 +32,8 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.03;           /* 3% Visibility (Very faint) */
-    filter: grayscale(100%); /* Black & White to match theme */
+    opacity: 0.03;           
+    filter: grayscale(100%); 
     z-index: -1;
     pointer-events: none;
 }
@@ -146,7 +145,7 @@ header {
     line-height: 1.4;
 }
 
-/* --- FORM --- */
+/* --- FORM CONTAINER --- */
 #form-container {
     display: none;
     background: var(--white);
@@ -195,6 +194,78 @@ input.error, select.error, textarea.error {
     box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.1) !important;
 }
 
+/* --- NEW BUTTON STYLES (Added for JS functionality) --- */
+
+/* Back Button */
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-text:hover {
+    background-color: #f8f9fa;
+    color: var(--primary);
+}
+
+/* Secondary Button (Add Entry) */
+.btn-secondary {
+    background: #e9ecef;
+    color: var(--text-dark);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: auto;
+    display: inline-block;
+}
+.btn-secondary:hover {
+    background: #dee2e6;
+    color: var(--primary-dark);
+}
+
+/* Danger Button (Remove Row) */
+.btn-danger {
+    background: #fff5f5;
+    color: #e03131;
+    border: 1px solid #ffc9c9;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+.btn-danger:hover {
+    background: #ffe3e3;
+    border-color: #ffa8a8;
+}
+
+/* Repeater Styling */
+.repeater-box {
+    margin-left: 0; 
+}
+.repeater-row {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+/* --- UPLOAD BOX --- */
 .upload-box {
     border: 2px dashed #cbd5e0;
     padding: 30px;
@@ -212,6 +283,7 @@ input.error, select.error, textarea.error {
 }
 .helper-text { font-size: 0.85rem; color: #888; margin-top: 8px; text-align: center;}
 
+/* --- SUBMIT BUTTON --- */
 .btn-submit {
     width: 100%;
     background: var(--primary);
@@ -232,6 +304,12 @@ input.error, select.error, textarea.error {
     box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
 }
 .btn-submit:active { transform: translateY(0); }
+.btn-submit:disabled {
+    background: #a5d6a7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
 
 .alert {
     background: #fff8e1;
@@ -277,4 +355,5 @@ input.error, select.error, textarea.error {
     .container { padding: 20px 15px; }
     .grid { grid-template-columns: repeat(2, 1fr); }
     #form-container { padding: 25px 20px; }
+    .btn-submit { padding: 15px; font-size: 1rem; }
 }
