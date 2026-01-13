@@ -992,20 +992,53 @@ function loadForm(serviceId, cardElem) {
     }, 200);
 }
 
-function renderFields(fieldList) {
-    const container = document.getElementById('dynamic-inputs');
+// 1. UPDATED RENDER FUNCTION
+function renderFields(fieldList, parentElement = null) {
+    // If we are inside a repeater, use the row as the parent, otherwise find the main container
+    const container = parentElement || document.getElementById('dynamic-inputs');
     
     fieldList.forEach(field => {
         const group = document.createElement('div');
         group.className = 'input-group';
 
+        // Create the Label
         const lbl = document.createElement('label');
-        lbl.innerText = field.label[currentLang];
-        // Store translations
-        lbl.dataset.en = field.label.en;
-        lbl.dataset.am = field.label.am;
-        lbl.dataset.ti = field.label.ti;
+        if(field.label) {
+            // Check if label has language support, otherwise fallback to En
+            lbl.innerText = field.label[currentLang] || field.label.en;
+            lbl.dataset.en = field.label.en;
+            lbl.dataset.am = field.label.am;
+            lbl.dataset.ti = field.label.ti;
+        }
         group.appendChild(lbl);
+
+        // --- NEW LOGIC START: CHECK FOR REPEATER ---
+        if (field.type === 'repeater') {
+            const repeaterBox = document.createElement('div');
+            repeaterBox.className = 'repeater-box';
+            // Style it slightly so it looks distinct
+            repeaterBox.style.borderLeft = "3px solid #007bff";
+            repeaterBox.style.paddingLeft = "15px";
+            repeaterBox.id = `repeater-${field.name}`;
+
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn-secondary small'; // Ensure you have css for .small or .btn-secondary
+            addBtn.innerText = '+ Add Entry';
+            addBtn.style.marginTop = "10px";
+            
+            // When clicked, add a new row
+            addBtn.onclick = () => addRepeaterRow(repeaterBox, field.fields);
+
+            // Add one default empty row to start
+            addRepeaterRow(repeaterBox, field.fields);
+
+            group.appendChild(repeaterBox);
+            group.appendChild(addBtn);
+            container.appendChild(group);
+            return; // Stop here for this field, move to next
+        }
+        // --- NEW LOGIC END ---
 
         let input;
         if (field.type === 'textarea') {
@@ -1013,6 +1046,12 @@ function renderFields(fieldList) {
             input.rows = 3;
         } else if (field.type === 'select') {
             input = document.createElement('select');
+            // Add a default blank option
+            const def = document.createElement('option');
+            def.value = "";
+            def.innerText = "Select...";
+            input.appendChild(def);
+            
             field.options.forEach(opt => {
                 const o = document.createElement('option');
                 o.value = opt;
@@ -1025,9 +1064,11 @@ function renderFields(fieldList) {
         }
         
         input.name = field.name;
-        // input.required = true; // We will handle validation manually for better UX
-        
-        // Remove error on focus
+        if(field.placeholder) {
+            input.placeholder = field.placeholder[currentLang] || "";
+        }
+
+        // UX: Remove red error border when user clicks
         input.addEventListener('focus', () => {
             input.classList.remove('error');
         });
@@ -1035,6 +1076,34 @@ function renderFields(fieldList) {
         group.appendChild(input);
         container.appendChild(group);
     });
+}
+
+// 2. NEW HELPER FUNCTION (Paste this right under renderFields)
+function addRepeaterRow(container, fields) {
+    const row = document.createElement('div');
+    row.className = 'repeater-row';
+    
+    // Simple styling for the row
+    row.style.background = "#f9f9f9";
+    row.style.padding = "15px";
+    row.style.marginBottom = "15px";
+    row.style.borderRadius = "8px";
+    row.style.position = "relative";
+    row.style.border = "1px solid #ddd";
+
+    // Recursively call renderFields to put inputs INSIDE this row
+    renderFields(fields, row);
+
+    // Add a Remove Button for this specific row
+    const delBtn = document.createElement('button');
+    delBtn.innerText = "Remove / አጥፋ";
+    delBtn.className = 'btn-danger small';
+    delBtn.type = 'button';
+    delBtn.style.marginTop = "10px";
+    delBtn.onclick = () => row.remove();
+
+    row.appendChild(delBtn);
+    container.appendChild(row);
 }
 
 // --- SUBMISSION LOGIC (REAL MODE ONLY) ---
