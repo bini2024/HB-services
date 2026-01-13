@@ -958,6 +958,42 @@ function renderGrid() {
 
 // --- FORM HANDLING ---
 function loadForm(serviceId, cardElem) {
+
+  // 1. ADD BACK BUTTON LOGIC
+    const header = document.getElementById('form-header');
+    
+    // Check if button already exists to prevent adding it twice
+    if(header && !header.querySelector('.back-btn')) {
+        const backBtn = document.createElement('button');
+        backBtn.className = 'btn-text back-btn'; // We will style this class in CSS later
+        backBtn.innerText = '← Back / ተመለስ';
+        backBtn.style.marginRight = 'auto'; // Pushes it to the left
+        backBtn.style.cursor = 'pointer';
+        backBtn.style.fontWeight = 'bold';
+        
+        backBtn.onclick = () => {
+            // Hide Form
+            document.getElementById('form-container').style.display = 'none';
+            // Show Grid
+            document.getElementById('service-grid').style.display = 'grid';
+            // Show Hero Section (Welcome text)
+            const hero = document.getElementById('hero-section');
+            if(hero) hero.style.display = 'block';
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        };
+        
+        // Add button to the top of the header
+        header.prepend(backBtn);
+    }
+    
+    // 2. HIDE GRID AND HERO WHEN FORM OPENS
+    const hero = document.getElementById('hero-section');
+    if(hero) hero.style.display = 'none';
+    
+    const grid = document.getElementById('service-grid');
+    if(grid) grid.style.display = 'none';
     currentService = serviceId;
     
     // UI Updates
@@ -986,6 +1022,8 @@ function loadForm(serviceId, cardElem) {
             renderFields(specificFields[serviceId]);
         }
 
+      // Restore previous work if it exists
+        restoreDraft(serviceId);
         // Fade in
         formContainer.style.opacity = '1';
         formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1064,6 +1102,9 @@ function renderFields(fieldList, parentElement = null) {
         }
         
         input.name = field.name;
+
+      // Auto-save when user types
+        input.addEventListener('input', () => saveDraft());
         if(field.placeholder) {
             input.placeholder = field.placeholder[currentLang] || "";
         }
@@ -1170,6 +1211,8 @@ window.handleFormSubmit = async (e) => {
         
         console.log("SUCCESS! Real ID:", docRef.id);
 
+      // Clear the saved draft so the form is empty next time
+        localStorage.removeItem(`draft_${currentService}`);
         // 7. Success Alert
         showToast("Application submitted successfully!");
         
@@ -1309,3 +1352,47 @@ window.updateFileCount = function() {
 
 // Start
 init();
+
+// --- DRAFT SYSTEM (AUTO-SAVE) ---
+function saveDraft() {
+    if(!currentService) return;
+    
+    const form = document.getElementById('main-form');
+    const data = {};
+    
+    // Capture all inputs
+    form.querySelectorAll('input, select, textarea').forEach(el => {
+        // Only save fields that have a name and aren't file uploads
+        if(el.name && el.type !== 'file' && el.type !== 'submit') {
+            data[el.name] = el.value;
+        }
+    });
+
+    // Save to browser memory
+    localStorage.setItem(`draft_${currentService}`, JSON.stringify(data));
+    // Optional: console.log("Saved");
+}
+
+function restoreDraft(serviceId) {
+    const saved = localStorage.getItem(`draft_${serviceId}`);
+    if(!saved) return;
+    
+    try {
+        const data = JSON.parse(saved);
+        const form = document.getElementById('main-form');
+        
+        // Loop through saved data and put it back into the form
+        Object.keys(data).forEach(key => {
+            const val = data[key];
+            const el = form.querySelector(`[name="${key}"]`);
+            if(el) {
+                el.value = val;
+            }
+        });
+        
+        // Let user know data came back
+        showToast("Draft Restored / የጀመሩት ተመልሷል", "success");
+    } catch(e) {
+        console.error("Draft restore error", e);
+    }
+}
