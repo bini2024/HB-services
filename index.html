@@ -6,7 +6,6 @@
     <title>HB Services Canada</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,17 +25,21 @@
         <br><span style="font-size:0.85em; opacity:0.8">(መግለጫ፡ እባክዎን ቅጹን በእንግሊዝኛ ፊደላት ብቻ ይሙሉ / በጃኹም ነቲ ፎርም ብ ናይ እንግሊዝኛ ፊደላት ጥራይ ምልእዎ)</span>
     </div>
 
-    <div class="hero">
-    <h1 id="hero-title">Welcome to HB Services</h1>
-    <p id="hero-subtitle">Professional assistance for all your documentation needs.</p>
-</div>
+    <div class="hero" id="hero-section">
+        <h1 id="hero-title">Welcome to HB Services</h1>
+        <p id="hero-subtitle">Professional assistance for all your documentation needs.</p>
+    </div>
 
-<h3 class="section-label" id="select-title">Select Service</h3>
+    <h3 class="section-label" id="select-title">Select Service</h3>
+    
     <div class="grid" id="service-grid">
         </div>
 
     <div id="form-container">
-        <h2 id="form-header-title">Application</h2>
+        <div id="form-header" style="display: flex; align-items: center; margin-bottom: 20px;">
+            <h2 id="form-header-title" style="margin: 0;">Application</h2>
+        </div>
+
         <form id="main-form" onsubmit="handleFormSubmit(event)">
             <div id="dynamic-inputs"></div>
             
@@ -55,12 +58,13 @@
     </div>
 </div>
 
-<script type="module" src="script.js"></script>
-
-</body>
-    <footer style="margin-top: 50px; padding: 20px; text-align: center; font-size: 0.8rem; color: #777;">
+<footer style="margin-top: 50px; padding: 20px; text-align: center; font-size: 0.8rem; color: #777;">
     <p><strong>Privacy Notice:</strong> Your data is submitted securely and used solely for the purpose of processing your application.</p>
     <p>By clicking Submit, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
     <p><em>We are a private documentation service and not the Canadian Government.</em></p>
 </footer>
+
+<script type="module" src="script.js"></script>
+
+</body>
 </html>
