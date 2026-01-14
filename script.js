@@ -1190,25 +1190,42 @@ window.handleFormSubmit = async (e) => {
             submittedAt: serverTimestamp(),
             language: currentLang,
             documents: uploadedFileUrls,
-            data: {}
+            data: {} // Flat fields go here
         };
+
+        const form = document.getElementById('main-form');
+
+        // A. Handle Standard Inputs (Not inside a repeater)
+        // Select inputs that are NOT inside a .repeater-row
+        const standardInputs = form.querySelectorAll(':not(.repeater-row) > .input-group > input, :not(.repeater-row) > .input-group > select, :not(.repeater-row) > .input-group > textarea');
         
-       const inputs = form.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            if (input.type !== 'file' && input.type !== 'submit' && input.name) {
-                // Check if this field name already exists (for Repeaters)
-                if (formData.data.hasOwnProperty(input.name)) {
-                    // If it's not an array yet, convert it to an array
-                    if (!Array.isArray(formData.data[input.name])) {
-                        formData.data[input.name] = [formData.data[input.name]];
-                    }
-                    // Add the new value to the list
-                    formData.data[input.name].push(input.value);
-                } else {
-                    // First time seeing this field, just save the value
-                    formData.data[input.name] = input.value;
-                }
-            }
+        standardInputs.forEach(input => {
+             if(input.name && input.type !== 'submit') {
+                 formData.data[input.name] = input.value;
+             }
+        });
+
+        // B. Handle Repeater Groups (Structured Data)
+        // Find all repeater containers
+        const repeaters = form.querySelectorAll('.repeater-box');
+        repeaters.forEach(box => {
+            // box.id might be "repeater-address_history"
+            const sectionName = box.id.replace('repeater-', ''); 
+            const rows = box.querySelectorAll('.repeater-row');
+            
+            const rowData = [];
+            
+            rows.forEach(row => {
+                const rowObj = {};
+                // Find inputs INSIDE this specific row
+                row.querySelectorAll('input, select, textarea').forEach(input => {
+                    if(input.name) rowObj[input.name] = input.value;
+                });
+                rowData.push(rowObj);
+            });
+
+            // Save as an array of objects: [{address: 'A', date: '1'}, {address: 'B', date: '2'}]
+            formData.data[sectionName] = rowData;
         });
 
         // 6. SUBMIT TO REAL DATABASE
@@ -1393,17 +1410,45 @@ function restoreDraft(serviceId) {
         const data = JSON.parse(saved);
         const form = document.getElementById('main-form');
         
-        // Loop through saved data and put it back into the form
+        // 1. Restore Standard Fields
         Object.keys(data).forEach(key => {
-            const val = data[key];
-            const el = form.querySelector(`[name="${key}"]`);
-            if(el) {
-                el.value = val;
+            // If the data is an ARRAY, it implies it's a repeater
+            if(Array.isArray(data[key])) {
+                const rowsData = data[key];
+                const repeaterBox = document.getElementById(`repeater-${key}`);
+                
+                if(repeaterBox) {
+                    // Clear existing default row
+                    repeaterBox.innerHTML = ''; 
+                    
+                    // Find the field config to get the sub-fields definition
+                    // (This is tricky because specificFields is global, but we can do it)
+                    const serviceConfig = specificFields[serviceId];
+                    const repeaterConfig = serviceConfig.find(f => f.name === key);
+                    
+                    if(repeaterConfig) {
+                        // Re-create rows based on saved data
+                        rowsData.forEach(rowData => {
+                            addRepeaterRow(repeaterBox, repeaterConfig.fields);
+                            // Now fill that specific new row
+                            const lastRow = repeaterBox.lastElementChild;
+                            Object.keys(rowData).forEach(subKey => {
+                                const el = lastRow.querySelector(`[name="${subKey}"]`);
+                                if(el) el.value = rowData[subKey];
+                            });
+                        });
+                    }
+                }
+            } else {
+                // Standard Field
+                const el = form.querySelector(`[name="${key}"]`);
+                if(el && !el.closest('.repeater-row')) {
+                   el.value = data[key];
+                }
             }
         });
         
-        // Let user know data came back
-        showToast("Draft Restored / የጀመሩት ተመልሷል", "success");
+        showToast("Draft Restored", "success");
     } catch(e) {
         console.error("Draft restore error", e);
     }
