@@ -500,24 +500,20 @@ const specificFields = {
 ],
 
     'health_card': [ // Based on OHIP 0265-82
+        { name: 'full_name', type: 'text', required: true, label: { en: 'Full Legal Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
+        { name: 'dob', type: 'date', required: true, label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለት ልደት' } },
+        { name: 'phone', type: 'tel', required: true, label: { en: 'Phone Number', am: 'ስልክ ቁጥር', ti: 'ቁጽሪ ተሌፎን' } },
+        { name: 'current_address', type: 'textarea', required: true, label: { en: 'Current Address', am: 'መኖሪያ አድራሻ', ti: 'ናይ ገዛ አድራሻ' } },
         { name: 'status_doc', type: 'select', options: ['PR Card', 'Work Permit', 'Confirmation of PR'], label: { en: 'Immigration Document', am: 'የኢሚግሬሽን ሰነድ', ti: 'ናይ ኢሚግሬሽን ሰነድ' } },
         { name: 'residency_doc', type: 'select', options: ['Drivers License', 'Bank Statement', 'Lease Agreement', 'Pay Stub'], label: { en: 'Proof of Address (Ontario)', am: 'የአድራሻ ማረጋገጫ', ti: 'ናይ ኣድራሻ መረጋገጺ' } },
         { name: 'arrival_date_canada', type: 'date', label: { en: 'Date Arrived in Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
         { name: 'arrival_date_ontario', type: 'date', label: { en: 'Date Arrived in Ontario', am: 'ኦንታሪዮ የገቡበት ቀን', ti: 'ናብ ኦንታሪዮ ዝኣተውሉ ዕለት' } },
-         { 
-    name: 'additionalInformation', 
-    type: 'textarea', 
-    label: { 
-        en: 'Additional Information', 
-        am: 'ተጨማሪ መረጃ', 
-        ti: 'ተወሳኪ ሓበሬታ' 
-    }, 
-    placeholder: { 
-        en: 'Please provide any additional information here...', 
-        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
-        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
-    } 
-}
+        { 
+            name: 'additionalInformation', 
+            type: 'textarea', 
+            label: { en: 'Additional Information', am: 'ተጨማሪ መረጃ', ti: 'ተወሳኪ ሓበሬታ' }, 
+            placeholder: { en: 'Please provide any additional information here...', am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' } 
+        }
     ],
 
    'single_status': [ 
@@ -635,25 +631,18 @@ const specificFields = {
     ],
 
     'death_cert': [
-        { name: 'deceased_name', type: 'text', label: { en: 'Deceased Full Name', am: 'የሟች ሙሉ ስም', ti: 'ሙሉእ ሽም መዋቲ' } },
+        { name: 'applicant_name', type: 'text', required: true, label: { en: 'Your Full Name (Applicant)', am: 'የአመልካች ስም', ti: 'ናይ ኣመልካቲ ስም' } },
+        { name: 'applicant_phone', type: 'tel', required: true, label: { en: 'Your Phone Number', am: 'ስልክ ቁጥር', ti: 'ቁጽሪ ተሌፎን' } },
+        { name: 'deceased_name', type: 'text', required: true, label: { en: 'Deceased Full Name', am: 'የሟች ሙሉ ስም', ti: 'ሙሉእ ሽም መዋቲ' } },
         { name: 'date_death', type: 'date', label: { en: 'Date of Death', am: 'የሞቱበት ቀን', ti: 'ዝሞትሉ ዕለት' } },
         { name: 'place_death', type: 'text', label: { en: 'Place of Death (City)', am: 'የሞቱበት ከተማ', ti: 'ዝሞትሉ ከተማ' } },
         { name: 'applicant_relationship', type: 'text', label: { en: 'Your Relationship to Deceased', am: 'ከሟች ጋር ያሎት ዝምድና', ti: 'ምስ መዋቲ ዘለኩም ዝምድና' } },
-         { 
-    name: 'additionalInformation', 
-    type: 'textarea', 
-    label: { 
-        en: 'Additional Information', 
-        am: 'ተጨማሪ መረጃ', 
-        ti: 'ተወሳኪ ሓበሬታ' 
-    }, 
-    placeholder: { 
-        en: 'Please provide any additional information here...', 
-        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
-        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
-    } 
-}
-        
+        { 
+            name: 'additionalInformation', 
+            type: 'textarea', 
+            label: { en: 'Additional Information', am: 'ተጨማሪ መረጃ', ti: 'ተወሳኪ ሓበሬታ' }, 
+            placeholder: { en: 'Please provide any additional information here...', am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' } 
+        }
     ],
 
     'sin_card': [
@@ -767,6 +756,10 @@ const specificFields = {
         
     ],
     'oas': [
+        { name: 'full_name', type: 'text', required: true, label: { en: 'Full Legal Name', am: 'ሙሉ ስም', ti: 'ሙሉእ ስም' } },
+        { name: 'dob', type: 'date', required: true, label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለት ልደት' } },
+        { name: 'phone', type: 'tel', required: true, label: { en: 'Phone Number', am: 'ስልክ ቁጥር', ti: 'ቁጽሪ ተሌፎን' } },
+        { name: 'current_address', type: 'textarea', required: true, label: { en: 'Current Address', am: 'መኖሪያ አድራሻ', ti: 'ናይ ገዛ አድራሻ' } },
         { name: 'sin_num', type: 'text', label: { en: 'SIN Number', am: 'SIN ቁጥር', ti: 'SIN ቁጽሪ' } },
         { name: 'date_entered_canada', type: 'date', label: { en: 'Date Entered Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
         { name: 'marital_status', type: 'select', options: ['Married', 'Single', 'Widowed', 'Divorced'], label: { en: 'Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
@@ -1032,7 +1025,7 @@ const header = document.querySelector('.form-header');
     }, 200);
 }
 
-// 1. UPDATED RENDER FUNCTION
+// 1. UPDATED RENDER FUNCTION (Fixed Validation)
 function renderFields(fieldList, parentElement = null) {
     // If we are inside a repeater, use the row as the parent, otherwise find the main container
     const container = parentElement || document.getElementById('dynamic-inputs');
@@ -1044,7 +1037,6 @@ function renderFields(fieldList, parentElement = null) {
         // Create the Label
         const lbl = document.createElement('label');
         if(field.label) {
-            // Check if label has language support, otherwise fallback to En
             lbl.innerText = field.label[currentLang] || field.label.en;
             lbl.dataset.en = field.label.en;
             lbl.dataset.am = field.label.am;
@@ -1052,22 +1044,20 @@ function renderFields(fieldList, parentElement = null) {
         }
         group.appendChild(lbl);
 
-        // --- NEW LOGIC START: CHECK FOR REPEATER ---
+        // --- REPEATER LOGIC ---
         if (field.type === 'repeater') {
             const repeaterBox = document.createElement('div');
             repeaterBox.className = 'repeater-box';
-            // Style it slightly so it looks distinct
             repeaterBox.style.borderLeft = "3px solid #007bff";
             repeaterBox.style.paddingLeft = "15px";
             repeaterBox.id = `repeater-${field.name}`;
 
             const addBtn = document.createElement('button');
             addBtn.type = 'button';
-            addBtn.className = 'btn-secondary small'; // Ensure you have css for .small or .btn-secondary
+            addBtn.className = 'btn-secondary small'; 
             addBtn.innerText = '+ Add Entry';
             addBtn.style.marginTop = "10px";
             
-            // When clicked, add a new row
             addBtn.onclick = () => addRepeaterRow(repeaterBox, field.fields);
 
             // Add one default empty row to start
@@ -1076,9 +1066,8 @@ function renderFields(fieldList, parentElement = null) {
             group.appendChild(repeaterBox);
             group.appendChild(addBtn);
             container.appendChild(group);
-            return; // Stop here for this field, move to next
+            return; // Stop here for this field
         }
-        // --- NEW LOGIC END ---
 
         let input;
         if (field.type === 'textarea') {
@@ -1105,7 +1094,12 @@ function renderFields(fieldList, parentElement = null) {
         
         input.name = field.name;
 
-      // Auto-save when user types
+        // --- FIX: APPLY REQUIRED ATTRIBUTE ---
+        if(field.required) {
+            input.required = true;
+        }
+
+        // Auto-save when user types
         input.addEventListener('input', () => saveDraft());
         if(field.placeholder) {
             input.placeholder = field.placeholder[currentLang] || "";
@@ -1120,7 +1114,6 @@ function renderFields(fieldList, parentElement = null) {
         container.appendChild(group);
     });
 }
-
 // 2. NEW HELPER FUNCTION (Paste this right under renderFields)
 function addRepeaterRow(container, fields) {
     const row = document.createElement('div');
@@ -1306,13 +1299,17 @@ function showToast(msg, type = 'success') {
     }, 4000);
 }
 
-// --- TRANSLATION SYSTEM ---
 window.setLang = function(lang) {
     currentLang = lang;
     
-    // Update Buttons
-    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+    // Update Buttons (Find the button with this lang and activate it)
+    document.querySelectorAll('.lang-btn').forEach(b => {
+        if(b.dataset.lang === lang) {
+            b.classList.add('active');
+        } else {
+            b.classList.remove('active');
+        }
+    });
 
     // Update Grid Titles
     document.querySelectorAll('.card-title').forEach(el => {
@@ -1329,11 +1326,11 @@ window.setLang = function(lang) {
     // Update Hero & Static Text
     const texts = {
         en: { 
-            heroT: "Welcome to Habesha Services", heroS: "Professional assistance for all your documentation needs.",
+            heroT: "Welcome to HB Services", heroS: "Professional assistance for all your documentation needs.",
             select: "Select Service", app: "Application", docs: "Documents", upload: "Upload ID / Documents", btn: "Submit Application", details: "Service Details"
         },
         am: { 
-            heroT: "ወደ ሀበሻ ሰርቪስ እንኳን በደህና መጡ", heroS: "ለሁሉም ዓይነት የሰነድ ጉዳዮችዎ ሙያዊ እገዛ እናደርጋለን።",
+            heroT: "ወደ HB ሰርቪስ እንኳን በደህና መጡ", heroS: "ለሁሉም ዓይነት የሰነድ ጉዳዮችዎ ሙያዊ እገዛ እናደርጋለን።",
             select: "አገልግሎት ይምረጡ", app: "ማመልከቻ", docs: "ሰነዶች", upload: "መታወቂያ/ሰነድ ያስገቡ", btn: "ማመልከቻውን ላክ", details: "ዝርዝር መረጃ"
         },
         ti: { 
