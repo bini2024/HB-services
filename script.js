@@ -41,12 +41,6 @@ const services = [
     { id: 'lost_passport', icon: '❌', labels: { en: 'Lost/Stolen Passport', am: 'የጠፋ ፓስፖርት', ti: 'ዝጠፍአ ፓስፖርት' } }
 ];
 
-const commonFields = [
-    { name: 'full_name', type: 'text', label: { en: 'Full Legal Name', am: 'ሙሉ ስም (እንደ መታወቂያ)', ti: 'ሙሉእ ስም (ከም መታወቒ)' } },
-    { name: 'phone', type: 'tel', label: { en: 'Phone Number', am: 'ስልክ ቁጥር', ti: 'ቁጽሪ ተሌፎን' } },
-    { name: 'address', type: 'text', label: { en: 'Current Address', am: 'አድራሻ', ti: 'አድራሻ' } },
-    { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዝተወለድካሉ/ክሉ ዕለት' } }
-];
 
 // Specific Inputs per Service (AUDITED & CORRECTED)
 const specificFields = {
@@ -1020,9 +1014,7 @@ const header = document.querySelector('.form-header');
         formContainer.style.display = 'block';
         dynamicInputs.innerHTML = ''; 
 
-        // 1. Common Fields
-        renderFields(commonFields);
-
+      
         // 2. Specific Fields
         if(specificFields[serviceId]) {
             const div = document.createElement('div');
