@@ -1069,51 +1069,90 @@ function renderFields(fieldList, parentElement = null) {
             return; // Stop here for this field
         }
 
+        // ... inside renderFields loop ...
+
         let input;
-        if (field.type === 'textarea') {
+
+        // 1. Handle Checkbox Groups (e.g. Tax Years)
+        if (field.type === 'checkbox_group') {
+            input = document.createElement('div');
+            field.options.forEach(opt => {
+                const label = document.createElement('label');
+                label.style.display = 'inline-block'; 
+                label.style.marginRight = '15px';
+                label.style.fontWeight = 'normal';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.name = field.name; // All share same name
+                cb.value = opt;
+                cb.addEventListener('change', () => saveDraft()); // Add draft trigger
+
+                label.prepend(cb);
+                label.appendChild(document.createTextNode(opt));
+                input.appendChild(label);
+            });
+        
+        // 2. Handle Single Checkbox (e.g. Declaration)
+        } else if (field.type === 'checkbox') {
+             input = document.createElement('div');
+             const label = document.createElement('label');
+             label.style.fontWeight = 'normal';
+             
+             const cb = document.createElement('input');
+             cb.type = 'checkbox';
+             cb.name = field.name;
+             cb.value = "Yes"; // Value sent if checked
+             cb.required = field.required;
+             cb.addEventListener('change', () => saveDraft());
+
+             label.prepend(cb);
+             label.appendChild(document.createTextNode(" " + (field.label[currentLang] || field.label.en)));
+             
+             // We don't append the main label again below, so hide the group label
+             if(group.querySelector('label')) group.querySelector('label').style.display = 'none';
+             
+             input.appendChild(label);
+
+        } else if (field.type === 'textarea') {
             input = document.createElement('textarea');
             input.rows = 3;
+            input.name = field.name;
+            if(field.required) input.required = true;
+            input.addEventListener('input', () => saveDraft());
+
         } else if (field.type === 'select') {
+            // ... existing select logic ...
             input = document.createElement('select');
-            // Add a default blank option
+            input.name = field.name;
+            if(field.required) input.required = true;
             const def = document.createElement('option');
-            def.value = "";
-            def.innerText = "Select...";
+            def.value = ""; def.innerText = "Select...";
             input.appendChild(def);
-            
             field.options.forEach(opt => {
                 const o = document.createElement('option');
-                o.value = opt;
-                o.innerText = opt;
+                o.value = opt; o.innerText = opt;
                 input.appendChild(o);
             });
+            input.addEventListener('change', () => saveDraft());
+
         } else {
+            // Standard Inputs
             input = document.createElement('input');
             input.type = field.type;
+            input.name = field.name;
+            if(field.required) input.required = true;
+            input.addEventListener('input', () => saveDraft());
+        }
+
+        // ... (Placeholder logic) ...
+        // Note: Don't append 'input' if it was a checkbox group, the group logic handled it.
+        if(field.type !== 'checkbox') { 
+            if(field.placeholder) input.placeholder = field.placeholder[currentLang] || "";
         }
         
-        input.name = field.name;
-
-        // --- FIX: APPLY REQUIRED ATTRIBUTE ---
-        if(field.required) {
-            input.required = true;
-        }
-
-        // Auto-save when user types
-        input.addEventListener('input', () => saveDraft());
-        if(field.placeholder) {
-            input.placeholder = field.placeholder[currentLang] || "";
-        }
-
-        // UX: Remove red error border when user clicks
-        input.addEventListener('focus', () => {
-            input.classList.remove('error');
-        });
-
         group.appendChild(input);
         container.appendChild(group);
-    });
-}
 // 2. NEW HELPER FUNCTION (Paste this right under renderFields)
 function addRepeaterRow(container, fields) {
     const row = document.createElement('div');
@@ -1382,24 +1421,52 @@ window.updateFileCount = function() {
 // Start
 init();
 
-// --- DRAFT SYSTEM (AUTO-SAVE) ---
 function saveDraft() {
     if(!currentService) return;
     
     const form = document.getElementById('main-form');
     const data = {};
     
-    // Capture all inputs
-    form.querySelectorAll('input, select, textarea').forEach(el => {
-        // Only save fields that have a name and aren't file uploads
-        if(el.name && el.type !== 'file' && el.type !== 'submit') {
+    // 1. Save Standard Inputs (Non-Repeater)
+    // Exclude file, submit, and buttons
+    const inputs = form.querySelectorAll(':not(.repeater-row) > .input-group input, :not(.repeater-row) > .input-group select, :not(.repeater-row) > .input-group textarea');
+    
+    inputs.forEach(el => {
+        if(!el.name || el.type === 'submit' || el.type === 'file') return;
+
+        if(el.type === 'checkbox') {
+            // For checkbox groups, we need an array
+            if(document.querySelectorAll(`[name="${el.name}"]`).length > 1) {
+                if(!data[el.name]) data[el.name] = [];
+                if(el.checked) data[el.name].push(el.value);
+            } else {
+                // Single checkbox
+                data[el.name] = el.checked; 
+            }
+        } else {
             data[el.name] = el.value;
         }
     });
 
-    // Save to browser memory
+    // 2. Save Repeater Data (Structured Array)
+    const repeaters = form.querySelectorAll('.repeater-box');
+    repeaters.forEach(box => {
+        const key = box.id.replace('repeater-', '');
+        const rows = box.querySelectorAll('.repeater-row');
+        const rowData = [];
+        
+        rows.forEach(row => {
+            const rowObj = {};
+            row.querySelectorAll('input, select, textarea').forEach(input => {
+                if(input.name) rowObj[input.name] = input.value;
+            });
+            rowData.push(rowObj);
+        });
+        
+        data[key] = rowData;
+    });
+
     localStorage.setItem(`draft_${currentService}`, JSON.stringify(data));
-    // Optional: console.log("Saved");
 }
 
 function restoreDraft(serviceId) {
