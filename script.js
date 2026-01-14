@@ -51,7 +51,6 @@ const commonFields = [
 // Specific Inputs per Service (AUDITED & CORRECTED)
 const specificFields = {
    'travel_doc': [
-
     // ===============================
     // SECTION 1: PERSONAL INFORMATION
     // ===============================
@@ -68,17 +67,13 @@ const specificFields = {
     { name: 'birth_city', type: 'text', required: true, label: { en: 'City of Birth', am: 'የትውልድ ከተማ', ti: 'ዝተወለድካሉ/ክሉ ከተማ' } },
 
     { name: 'birth_country', type: 'text', required: true, label: { en: 'Country of Birth', am: 'የትውልድ አገር', ti: 'ዝተወለድካሉ/ክሉ ሃገር' } },
-       { 
-    name: 'maritalStatus', 
-    type: 'select', 
-    options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
-    label: { 
-        en: 'Marital Status', 
-        am: 'የጋብቻ ሁኔታ', 
-        ti: 'የጋብቻ ሁኔታ' 
-    } 
-},
 
+    { 
+        name: 'maritalStatus', 
+        type: 'select', 
+        options: ['Single', 'Married', 'Divorced', 'Widowed', 'Separated'], 
+        label: { en: 'Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'የጋብቻ ሁኔታ' } 
+    },
 
     { name: 'sex', type: 'select', required: true, options: ['F', 'M', 'X'], label: { en: 'Sex / Gender', am: 'ፆታ', ti: 'ጾታ' } },
 
@@ -150,20 +145,14 @@ const specificFields = {
     // SECTION 8: EMERGENCY CONTACT
     // ===============================
     { name: 'emergency_contact', type: 'textarea', label: { en: 'Emergency Contact (Optional)', am: 'የአደጋ ጊዜ ግንኙነት', ti: 'ናይ ህጹጽ እዋን ተጸዋዒ(ሙሉእ ስም፣ ቴሌ.፣ ኣድራሻን ዝምድና)' } },
-       { 
-    name: 'additionalInformation', 
-    type: 'textarea', 
-    label: { 
-        en: 'Additional Information', 
-        am: 'ተጨማሪ መረጃ', 
-        ti: 'ተወሳኪ ሓበሬታ' 
-    }, 
-    placeholder: { 
-        en: 'Please provide any additional information here...', 
-        am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
-        ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
-    } 
-}
+    
+    { 
+        name: 'additionalInformation', 
+        type: 'textarea', 
+        label: { en: 'Additional Information', am: 'ተጨማሪ መረጃ', ti: 'ተወሳኪ ሓበሬታ' }, 
+        placeholder: { en: 'Please provide any additional information here...', am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' } 
+    }
+],
 
 
 ]
@@ -1198,10 +1187,21 @@ window.handleFormSubmit = async (e) => {
             data: {}
         };
         
-        const inputs = form.querySelectorAll('input, select, textarea');
+       const inputs = form.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            if(input.type !== 'file' && input.type !== 'submit' && input.name) {
-                formData.data[input.name] = input.value;
+            if (input.type !== 'file' && input.type !== 'submit' && input.name) {
+                // Check if this field name already exists (for Repeaters)
+                if (formData.data.hasOwnProperty(input.name)) {
+                    // If it's not an array yet, convert it to an array
+                    if (!Array.isArray(formData.data[input.name])) {
+                        formData.data[input.name] = [formData.data[input.name]];
+                    }
+                    // Add the new value to the list
+                    formData.data[input.name].push(input.value);
+                } else {
+                    // First time seeing this field, just save the value
+                    formData.data[input.name] = input.value;
+                }
             }
         });
 
