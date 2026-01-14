@@ -35,6 +35,47 @@
         th { background: #fafafa; font-weight: 600; color: #555; }
         tr:hover { background: #f9f9f9; cursor: pointer; }
 
+        /* ... existing styles ... */
+
+/* NEW: Styles for Repeater Data (Mini Tables) */
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+.mini-table th, .mini-table td {
+    padding: 6px 10px;
+    border: 1px solid #eee;
+    text-align: left;
+}
+.mini-table th {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #555;
+}
+.detail-block {
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+.detail-label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+.detail-value {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+}
+
         /* BADGES */
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
         .badge.new { background: #e3f2fd; color: #1565c0; }
@@ -123,183 +164,223 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-        // CONFIG (Same as your frontend)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
-            authDomain: "hb-services-87372.firebaseapp.com",
-            projectId: "hb-services-87372",
-            storageBucket: "hb-services-87372.firebasestorage.app",
-            messagingSenderId: "326833059312",
-            appId: "1:326833059312:web:cee34d9ec63c4adfd21935"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
+        authDomain: "hb-services-87372.firebaseapp.com",
+        projectId: "hb-services-87372",
+        storageBucket: "hb-services-87372.firebasestorage.app",
+        messagingSenderId: "326833059312",
+        appId: "1:326833059312:web:cee34d9ec63c4adfd21935"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        let currentSubmissions = [];
-        let selectedId = null;
+    let currentSubmissions = [];
+    let selectedId = null;
 
-        // --- AUTH LOGIC ---
-        window.login = async () => {
-            const email = document.getElementById('email').value;
-            const pass = document.getElementById('password').value;
-            try {
-                await signInWithEmailAndPassword(auth, email, pass);
-            } catch (error) {
-                document.getElementById('login-error').innerText = "Invalid Credentials";
+    // --- AUTH LOGIC ---
+    window.login = async () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+        } catch (error) {
+            document.getElementById('login-error').innerText = "Invalid Credentials";
+        }
+    };
+
+    window.logout = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            loadSubmissions();
+        } else {
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'none';
+        }
+    });
+
+    // --- DATA LOGIC ---
+    async function loadSubmissions() {
+        const q = query(collection(db, "submissions"), orderBy("submittedAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        
+        let counts = { total: 0, new: 0, pending: 0 };
+        currentSubmissions = [];
+
+        querySnapshot.forEach((doc) => {
+            const sub = doc.data();
+            sub.id = doc.id;
+            currentSubmissions.push(sub);
+
+            counts.total++;
+            if(sub.status === 'new') counts.new++;
+            if(sub.status === 'in_progress') counts.pending++;
+
+            let dateStr = "N/A";
+            if(sub.submittedAt && typeof sub.submittedAt.toDate === 'function') {
+                dateStr = sub.submittedAt.toDate().toLocaleDateString();
             }
-        };
 
-        window.logout = () => signOut(auth);
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                loadSubmissions();
-            } else {
-                document.getElementById('login-screen').style.display = 'flex';
-                document.getElementById('dashboard').style.display = 'none';
+            // Safe Name Access
+            let name = 'Unknown';
+            if (sub.data) {
+                name = sub.data.full_name || sub.data.applicant_name || sub.data.groom_name || 
+                       `${sub.data.given_names || ''} ${sub.data.surname || ''}`.trim();
             }
+            if(!name) name = "Unknown Applicant";
+
+            const tr = document.createElement('tr');
+            tr.onclick = () => openModal(sub.id);
+            // ESCAPE HTML FOR SECURITY
+            tr.innerHTML = `
+                <td>${escapeHtml(dateStr)}</td>
+                <td><strong>${escapeHtml(name)}</strong></td>
+                <td>${formatServiceId(sub.service)}</td>
+                <td><span class="badge ${getStatusClass(sub.status)}">${formatStatus(sub.status)}</span></td>
+                <td><button style="padding:5px;">View</button></td>
+            `;
+            tbody.appendChild(tr);
         });
 
-        // --- DATA LOGIC ---
-        async function loadSubmissions() {
-            const q = query(collection(db, "submissions"), orderBy("submittedAt", "desc"));
-            const querySnapshot = await getDocs(q);
-            
-            const tbody = document.getElementById('table-body');
-            tbody.innerHTML = '';
-            
-            let counts = { total: 0, new: 0, pending: 0 };
-            currentSubmissions = [];
+        document.getElementById('count-total').innerText = counts.total;
+        document.getElementById('count-new').innerText = counts.new;
+        document.getElementById('count-pending').innerText = counts.pending;
+    }
 
-            querySnapshot.forEach((doc) => {
-                const sub = doc.data();
-                sub.id = doc.id;
-                currentSubmissions.push(sub);
+    // --- MODAL LOGIC ---
+    window.openModal = (id) => {
+        selectedId = id;
+        const sub = currentSubmissions.find(s => s.id === id);
+        const modalBody = document.getElementById('modal-body');
+        document.getElementById('modal-status').value = sub.status || 'new';
 
-                // Update Metrics
-                counts.total++;
-                if(sub.status === 'new') counts.new++;
-                if(sub.status === 'in_progress') counts.pending++;
+        let contentHtml = '';
 
-                // Format Date
-                let dateStr = "N/A";
-                if(sub.submittedAt && typeof sub.submittedAt.toDate === 'function') {
-                    dateStr = sub.submittedAt.toDate().toLocaleDateString() + ' ' + sub.submittedAt.toDate().toLocaleTimeString();
-                }
-
-                // Determine Name (Look for common name fields)
-                // We check common keys: full_name, surname + given_names
-                let name = sub.data.full_name || `${sub.data.given_names || ''} ${sub.data.surname || ''}` || 'Unknown';
-
-                // Render Row
-                const tr = document.createElement('tr');
-                tr.onclick = () => openModal(sub.id);
-                tr.innerHTML = `
-                    <td>${dateStr}</td>
-                    <td><strong>${name}</strong></td>
-                    <td>${formatServiceId(sub.service)}</td>
-                    <td><span class="badge ${getStatusClass(sub.status)}">${formatStatus(sub.status)}</span></td>
-                    <td><button style="padding:5px;">View</button></td>
-                `;
-                tbody.appendChild(tr);
+        // 1. Files
+        if(sub.documents && sub.documents.length > 0) {
+            contentHtml += `<h3>Attached Documents</h3><div style="margin-bottom:15px;">`;
+            sub.documents.forEach(doc => {
+                contentHtml += `<a href="${doc.url}" target="_blank" class="file-link">📄 ${escapeHtml(doc.name)}</a> `;
             });
-
-            // Update DOM Metrics
-            document.getElementById('count-total').innerText = counts.total;
-            document.getElementById('count-new').innerText = counts.new;
-            document.getElementById('count-pending').innerText = counts.pending;
+            contentHtml += `</div>`;
+        } else {
+            contentHtml += `<p><em>No documents uploaded.</em></p>`;
         }
 
-        // --- MODAL LOGIC ---
-        window.openModal = (id) => {
-            selectedId = id;
-            const sub = currentSubmissions.find(s => s.id === id);
-            const modalBody = document.getElementById('modal-body');
-            document.getElementById('modal-status').value = sub.status || 'new';
-
-            let contentHtml = '';
-
-            // 1. Files
-            if(sub.documents && sub.documents.length > 0) {
-                contentHtml += `<h3>Attached Documents</h3><div style="margin-bottom:15px;">`;
-                sub.documents.forEach(doc => {
-                    contentHtml += `<a href="${doc.url}" target="_blank" class="file-link">📄 ${doc.name}</a> `;
-                });
-                contentHtml += `</div>`;
-            } else {
-                contentHtml += `<p><em>No documents uploaded.</em></p>`;
-            }
-
-            // 2. Form Data (Dynamic Loop)
-            contentHtml += `<h3>Form Data</h3>`;
-            for (const [key, value] of Object.entries(sub.data)) {
-                // Formatting key to look nice (e.g., full_name -> Full Name)
-                const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                contentHtml += `
-                    <div class="detail-row">
-                        <span class="detail-label">${label}</span>
-                        <span>${value}</span>
-                    </div>
-                `;
-            }
-
-            modalBody.innerHTML = contentHtml;
-            document.getElementById('modal').style.display = 'flex';
-        };
-
-        window.closeModal = () => {
-            document.getElementById('modal').style.display = 'none';
-        };
-
-        window.saveStatus = async () => {
-            if(!selectedId) return;
-            const newStatus = document.getElementById('modal-status').value;
-            const btn = document.querySelector('.save-btn');
+        // 2. Form Data (Smart Render)
+        contentHtml += `<h3>Form Data</h3>`;
+        
+        for (const [key, value] of Object.entries(sub.data)) {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             
-            btn.innerText = "Saving...";
-            
-            try {
-                const ref = doc(db, "submissions", selectedId);
-                await updateDoc(ref, { status: newStatus });
+            contentHtml += `<div class="detail-block"><span class="detail-label">${label}</span>`;
+
+            // CHECK: Is this a Repeater (Array of Objects)?
+            if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+                contentHtml += `<table class="mini-table"><thead><tr>`;
                 
-                alert("Status Updated!");
-                closeModal();
-                loadSubmissions(); // Refresh table
-            } catch (e) {
-                alert("Error updating: " + e.message);
-            } finally {
-                btn.innerText = "Update Status";
+                // Get headers from first object
+                const headers = Object.keys(value[0]);
+                headers.forEach(h => {
+                    contentHtml += `<th>${h.replace(/_/g, ' ')}</th>`;
+                });
+                contentHtml += `</tr></thead><tbody>`;
+                
+                // Rows
+                value.forEach(row => {
+                    contentHtml += `<tr>`;
+                    headers.forEach(h => {
+                        contentHtml += `<td>${escapeHtml(row[h] || '')}</td>`;
+                    });
+                    contentHtml += `</tr>`;
+                });
+                contentHtml += `</tbody></table>`;
+            } 
+            // CHECK: Is it a simple Array (Checkbox Group)?
+            else if (Array.isArray(value)) {
+                contentHtml += `<div class="detail-value">${escapeHtml(value.join(', '))}</div>`;
             }
+            // CHECK: Boolean (Single Checkbox)
+            else if (typeof value === 'boolean') {
+                contentHtml += `<div class="detail-value">${value ? 'Yes' : 'No'}</div>`;
+            }
+            // STANDARD: String
+            else {
+                contentHtml += `<div class="detail-value">${escapeHtml(String(value))}</div>`;
+            }
+            
+            contentHtml += `</div>`;
+        }
+
+        modalBody.innerHTML = contentHtml;
+        document.getElementById('modal').style.display = 'flex';
+    };
+
+    window.closeModal = () => { document.getElementById('modal').style.display = 'none'; };
+
+    window.saveStatus = async () => {
+        if(!selectedId) return;
+        const newStatus = document.getElementById('modal-status').value;
+        const btn = document.querySelector('.save-btn');
+        btn.innerText = "Saving...";
+        
+        try {
+            const ref = doc(db, "submissions", selectedId);
+            await updateDoc(ref, { status: newStatus });
+            alert("Status Updated!");
+            closeModal();
+            loadSubmissions(); 
+        } catch (e) {
+            alert("Error updating: " + e.message);
+        } finally {
+            btn.innerText = "Update Status";
+        }
+    };
+
+    // --- HELPERS ---
+    
+    // SECURITY: Prevent XSS
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
         };
+        return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
 
-        // --- HELPERS ---
-        function formatServiceId(id) {
-            // Converts 'travel_doc' -> 'Travel Doc'
-            if(!id) return 'Unknown';
-            return id.replace(/_/g, ' ').toUpperCase();
-        }
+    function formatServiceId(id) {
+        if(!id) return 'Unknown';
+        return id.replace(/_/g, ' ').toUpperCase();
+    }
 
-        function getStatusClass(status) {
-            if (status === 'new') return 'new';
-            if (status === 'in_progress') return 'progress';
-            if (status === 'completed') return 'completed';
-            return '';
-        }
+    function getStatusClass(status) {
+        if (status === 'new') return 'new';
+        if (status === 'in_progress') return 'progress';
+        if (status === 'completed') return 'completed';
+        return '';
+    }
 
-        function formatStatus(status) {
-            if(!status) return 'New';
-            return status.replace(/_/g, ' ').toUpperCase();
-        }
-
-    </script>
+    function formatStatus(status) {
+        if(!status) return 'New';
+        return status.replace(/_/g, ' ').toUpperCase();
+    }
+</script>
 </body>
 </html>
