@@ -1262,10 +1262,12 @@ window.handleFormSubmit = async (e) => {
 
 function validateForm() {
     let isValid = true;
+    // We only want to validate inputs that are actually visible
     const inputs = document.querySelectorAll('#dynamic-inputs input, #dynamic-inputs select, #dynamic-inputs textarea');
     
     inputs.forEach(input => {
-        if(!input.value.trim()) {
+        // ONLY check if the input has the 'required' attribute
+        if(input.hasAttribute('required') && !input.value.trim()) {
             input.classList.add('error');
             isValid = false;
         }
