@@ -4,47 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Application Status - HB Services</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
     <style>
-        :root { --primary: #28a745; --bg: #f9fbf9; --text: #2c3e50; }
-        body { font-family: 'Open Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        /* Page Specific Overrides only */
+        body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .status-card { 
+            background: white; padding: 40px; border-radius: 16px; 
+            box-shadow: var(--shadow-md); max-width: 500px; width: 100%; 
+            text-align: center; margin-top: 20px; 
+        }
         
-        .status-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); max-width: 500px; width: 100%; text-align: center; margin-top: 50px; }
-        h1 { color: var(--primary); margin-bottom: 10px; }
-        p { color: #666; margin-bottom: 30px; }
-        
-        input { width: 80%; padding: 15px; border: 2px solid #eee; border-radius: 8px; font-size: 1.1rem; text-align: center; letter-spacing: 1px; margin-bottom: 20px; }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        button { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; }
-        button:hover { background: #1e7e34; }
-
-        /* RESULTS BOX */
-        #result-box { margin-top: 30px; display: none; padding: 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid #eee; }
+        /* Status Badges */
         .status-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: bold; text-transform: uppercase; font-size: 0.9rem; margin-top: 10px; }
-        
         .status-new { background: #e3f2fd; color: #1976d2; }
         .status-in_progress { background: #fff3e0; color: #f57c00; }
         .status-completed { background: #e8f5e9; color: #2e7d32; }
+        .status-rejected { background: #ffebee; color: #c62828; }
 
         .back-link { margin-top: 20px; display: block; color: #888; text-decoration: none; font-size: 0.9rem; }
+        .back-link:hover { color: var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="status-card">
+    <main class="status-card">
         <h1>Track Application</h1>
         <p>Enter your Tracking ID to check the status of your documents.</p>
         
-        <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." />
-        <button onclick="checkStatus()">Check Status</button>
+        <div class="input-group">
+            <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." style="text-align:center;">
+        </div>
+        
+        <button id="btn-check" class="btn-submit" onclick="checkStatus()">Check Status</button>
 
-        <div id="result-box">
-            <h3 style="margin:0;">Application Found</h3>
-            <p id="res-service" style="margin: 5px 0 15px 0; font-weight:600;">Passport Application</p>
-            <div style="text-align:left; font-size:0.9rem; color:#555; line-height:1.6;">
+        <div id="result-box" style="display:none; margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+            <h3 style="margin:0; color: var(--primary);">Application Found</h3>
+            <p id="res-service" style="margin: 5px 0 15px 0; font-weight:600; color: var(--text-dark);"></p>
+            
+            <div style="text-align:left; font-size:0.95rem; background: #f8f9fa; padding: 15px; border-radius: 8px;">
                 <strong>Applicant:</strong> <span id="res-name"></span><br>
                 <strong>Submitted:</strong> <span id="res-date"></span><br>
             </div>
+            
             <div style="margin-top:20px;">
                 Current Status:<br>
                 <span id="res-status" class="status-badge">Checking...</span>
@@ -52,13 +55,12 @@
         </div>
 
         <a href="index.html" class="back-link">← Back to Home</a>
-    </div>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 
-        // USE YOUR EXACT CONFIG HERE
         const firebaseConfig = {
             apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
             authDomain: "hb-services-87372.firebaseapp.com",
@@ -71,11 +73,34 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Service Mapping for clean display
+        const serviceNames = {
+            'travel_doc': 'Refugee Travel Document',
+            'passport': 'Passport Application',
+            'citizenship': 'Citizenship Application',
+            'health_card': 'Health Card Renewal',
+            'single_status': 'Single Status Letter',
+            'marriage_cert': 'Marriage Certificate',
+            'death_cert': 'Death Certificate',
+            'sin_card': 'SIN Number',
+            'ei_benefit': 'Employment Insurance (EI)',
+            'oas': 'Old Age Security',
+            'lost_passport': 'Lost Passport Replacement'
+        };
+
         window.checkStatus = async () => {
-            const id = document.getElementById('track-id').value.trim();
+            const input = document.getElementById('track-id');
+            const id = input.value.trim();
+            const btn = document.getElementById('btn-check');
             const resBox = document.getElementById('result-box');
             
             if(!id) return alert("Please enter an ID");
+
+            // UI Loading State
+            const originalText = btn.innerText;
+            btn.innerHTML = "Searching...";
+            btn.disabled = true;
+            resBox.style.display = 'none';
 
             try {
                 const docRef = doc(db, "submissions", id);
@@ -84,28 +109,41 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // Show Data
-                    document.getElementById('res-service').innerText = (data.service || 'Application').toUpperCase().replace(/_/g, ' ');
-                    document.getElementById('res-name').innerText = data.data.full_name || data.data.surname || 'Unknown';
+                    // 1. Service Name Formatting
+                    const niceName = serviceNames[data.service] || data.service.replace(/_/g, ' ').toUpperCase();
+                    document.getElementById('res-service').innerText = niceName;
+
+                    // 2. PRIVACY: Mask the Name (J*** D**)
+                    let rawName = data.data.full_name || data.data.surname || data.data.groom_name || data.data.applicant_name || 'Unknown';
+                    // Simple mask logic
+                    const maskedName = rawName.split(' ').map(n => n[0] + '*'.repeat(n.length-1)).join(' ');
+                    document.getElementById('res-name').innerText = maskedName;
                     
-                    // Format Date
-                    let dateStr = "N/A";
-                    if(data.submittedAt) dateStr = new Date(data.submittedAt.seconds * 1000).toLocaleDateString();
+                    // 3. Date Formatting
+                    let dateStr = "Pending";
+                    if(data.submittedAt) {
+                        dateStr = new Date(data.submittedAt.seconds * 1000).toLocaleDateString('en-CA', {
+                            year: 'numeric', month: 'long', day: 'numeric'
+                        });
+                    }
                     document.getElementById('res-date').innerText = dateStr;
 
-                    // Status Badge
+                    // 4. Status Badge
                     const statusSpan = document.getElementById('res-status');
                     statusSpan.innerText = (data.status || 'New').replace(/_/g, ' ');
                     statusSpan.className = `status-badge status-${data.status || 'new'}`;
 
                     resBox.style.display = 'block';
                 } else {
-                    alert("No application found with that ID. Please check and try again.");
-                    resBox.style.display = 'none';
+                    alert("❌ Application not found.\nPlease check the ID and try again.");
                 }
             } catch (error) {
                 console.error(error);
-                alert("Error fetching status. Please try again.");
+                alert("Connection Error. Please try again.");
+            } finally {
+                // Restore Button
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         };
     </script>
