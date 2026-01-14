@@ -154,9 +154,6 @@ const specificFields = {
     }
 ],
 
-
-]
-,
    'passport': [
         // ===============================
         // SECTION 1: PASSPORT TYPE
@@ -924,12 +921,36 @@ const specificFields = {
 };
 
 
-// --- INITIALIZATION ---
 function init() {
     createToastContainer();
     renderGrid();
-}
 
+    // 1. Wire up the File Upload Box
+    const uploadBox = document.getElementById('upload-box-trigger');
+    const fileInput = document.getElementById('file-input');
+    
+    if(uploadBox && fileInput) {
+        // Clicking the box triggers the hidden file input
+        uploadBox.addEventListener('click', () => fileInput.click());
+        
+        // When files are selected, update the text
+        fileInput.addEventListener('change', window.updateFileCount);
+    }
+
+    // 2. Wire up the Submit Button
+    const form = document.getElementById('main-form');
+    if(form) {
+        form.addEventListener('submit', window.handleFormSubmit);
+    }
+
+    // 3. Language Switcher Logic
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const lang = e.target.dataset.lang;
+            window.setLang(lang);
+        });
+    });
+}
 function renderGrid() {
     const grid = document.getElementById('service-grid');
     grid.innerHTML = '';
@@ -948,8 +969,8 @@ function renderGrid() {
 // --- FORM HANDLING ---
 function loadForm(serviceId, cardElem) {
 
-  // 1. ADD BACK BUTTON LOGIC
-    const header = document.getElementById('form-header');
+ // We use querySelector because the element has a class="form-header", not an ID
+const header = document.querySelector('.form-header');
     
     // Check if button already exists to prevent adding it twice
     if(header && !header.querySelector('.back-btn')) {
