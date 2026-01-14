@@ -192,7 +192,7 @@
 
                 // Format Date
                 let dateStr = "N/A";
-                if(sub.submittedAt) {
+                if(sub.submittedAt && typeof sub.submittedAt.toDate === 'function') {
                     dateStr = sub.submittedAt.toDate().toLocaleDateString() + ' ' + sub.submittedAt.toDate().toLocaleTimeString();
                 }
 
