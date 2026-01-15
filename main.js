@@ -1,34 +1,73 @@
 // main.js
 import { db, storage, collection, addDoc, serverTimestamp, ref, uploadBytes, getDownloadURL } from './firebase-setup.js';
-import { state } from './state.js';
+import { state, setLanguage, subscribe } from './state.js';
 import { specificFields } from './config.js';
 import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow } from './ui.js';
+
+// --- CONSTANTS ---
+const ENGLISH_REGEX = /^[A-Za-z0-9\s.,'()-]*$/; // Allows letters, numbers, and basic punctuation
 
 // --- INITIALIZATION ---
 window.addEventListener('DOMContentLoaded', () => {
     createToastContainer();
-    renderGrid();
+    renderGrid(); // Initial Render
 
-    // 1. File Upload Listener
+    // 1. Subscribe to State Changes (This connects state.js to the UI)
+    subscribe((newState) => {
+        updateLanguageUI(newState.currentLang);
+        // If you had other UI elements relying on state, you'd update them here too
+    });
+
+    // 2. File Upload Listener
     const uploadBox = document.getElementById('upload-box-trigger');
     const fileInput = document.getElementById('file-input');
     if(uploadBox && fileInput) {
+        // Accessibility: allow "Enter" key to trigger upload
+        uploadBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
         uploadBox.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', updateFileCount);
     }
 
-    // 2. Submit Button Listener
+    // 3. Submit Button Listener
     const form = document.getElementById('main-form');
     if(form) {
         form.addEventListener('submit', handleFormSubmit);
+        
+        // AUTO-SAVE DRAFT LOGIC
+        // We listen to 'input' events on the whole form and save after user stops typing
+        let debounceTimer;
+        form.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                saveDraft();
+            }, 1000); // Save 1 second after last keystroke
+        });
     }
 
-    // 3. Language Buttons
+    // 4. Language Buttons
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            updateLanguageUI(e.target.dataset.lang);
+            const lang = e.target.dataset.lang;
+            setLanguage(lang); // Update state, which triggers the subscriber above
         });
     });
+    
+    // 5. Back Button
+    const backBtn = document.getElementById('back-btn');
+    if(backBtn) {
+        backBtn.addEventListener('click', () => {
+            document.getElementById('form-container').classList.add('hidden');
+            document.getElementById('service-grid').classList.remove('hidden');
+            document.getElementById('select-title').classList.remove('hidden');
+            document.getElementById('hero-section').classList.remove('hidden');
+            window.scrollTo(0,0);
+        });
+    }
 });
 
 // --- LOGIC FUNCTIONS ---
@@ -43,8 +82,9 @@ async function handleFormSubmit(e) {
         return;
     }
 
+    // Validate
     if(!validateForm()) {
-        showToast("Please fill in all required fields.", "error");
+        showToast("Please check errors in the form.", "error");
         return;
     }
 
@@ -103,7 +143,9 @@ async function handleFormSubmit(e) {
         const docRef = await addDoc(collection(db, "submissions"), formData);
         console.log("SUCCESS! ID:", docRef.id);
         
+        // Clear Draft
         localStorage.removeItem(`draft_${state.currentService}`);
+        
         showToast("Application submitted successfully!");
         
         setTimeout(() => {
@@ -113,21 +155,49 @@ async function handleFormSubmit(e) {
 
     } catch(err) {
         console.error("Submission Error:", err);
-        alert("❌ Error: " + err.message);
+        showToast("Error: " + err.message, "error");
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 }
 
+/**
+ * Validates Required Fields AND English Characters
+ */
 function validateForm() {
     let isValid = true;
+    let firstError = null;
+
     const inputs = document.querySelectorAll('#dynamic-inputs input, #dynamic-inputs select, #dynamic-inputs textarea');
+    
     inputs.forEach(input => {
+        // Reset previous errors
+        input.classList.remove('error');
+        
+        // 1. Check Required
         if(input.hasAttribute('required') && !input.value.trim()) {
             input.classList.add('error');
             isValid = false;
+            if(!firstError) firstError = input;
+        }
+
+        // 2. Check English Only (if it's a text input)
+        // We skip type="date", type="email" (email has its own format), etc.
+        if (input.type === 'text' || input.tagName === 'TEXTAREA') {
+            if (input.value.trim() && !ENGLISH_REGEX.test(input.value)) {
+                input.classList.add('error');
+                showToast("Please use English letters only.", "error"); // Toast explanation
+                isValid = false;
+                if(!firstError) firstError = input;
+            }
         }
     });
+
+    if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstError.focus();
+    }
+
     return isValid;
 }
 
@@ -170,6 +240,7 @@ export function saveDraft() {
     });
 
     localStorage.setItem(`draft_${state.currentService}`, JSON.stringify(data));
+    console.log("Draft Saved");
 }
 
 export function restoreDraft(serviceId) {
