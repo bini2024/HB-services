@@ -8,12 +8,23 @@
     <link rel="stylesheet" href="style.css">
     
     <style>
-        /* Page Specific Overrides only */
-        body { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* Page Specific Layout */
+        body { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh;
+            padding: 20px;
+        }
         .status-card { 
-            background: white; padding: 40px; border-radius: 16px; 
-            box-shadow: var(--shadow-md); max-width: 500px; width: 100%; 
-            text-align: center; margin-top: 20px; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow-md); 
+            max-width: 500px; 
+            width: 100%; 
+            text-align: center; 
         }
         
         /* Status Badges */
@@ -23,8 +34,10 @@
         .status-completed { background: #e8f5e9; color: #2e7d32; }
         .status-rejected { background: #ffebee; color: #c62828; }
 
-        .back-link { margin-top: 20px; display: block; color: #888; text-decoration: none; font-size: 0.9rem; }
+        .back-link { margin-top: 20px; display: block; color: #888; text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
         .back-link:hover { color: var(--primary); }
+
+        .input-group input { text-align: center; font-size: 1.2rem; letter-spacing: 1px; }
     </style>
 </head>
 <body>
@@ -34,12 +47,12 @@
         <p>Enter your Tracking ID to check the status of your documents.</p>
         
         <div class="input-group">
-            <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." style="text-align:center;">
+            <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." autocomplete="off">
         </div>
         
-        <button id="btn-check" class="btn-submit" onclick="checkStatus()">Check Status</button>
+        <button id="btn-check" class="btn-submit">Check Status</button>
 
-        <div id="result-box" style="display:none; margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
+        <div id="result-box" class="hidden" style="margin-top:30px; border-top:1px solid #eee; padding-top:20px;">
             <h3 style="margin:0; color: var(--primary);">Application Found</h3>
             <p id="res-service" style="margin: 5px 0 15px 0; font-weight:600; color: var(--text-dark);"></p>
             
@@ -58,68 +71,59 @@
     </main>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+        // 1. Import from our centralized setup files
+        import { db, doc, getDoc } from './firebase-setup.js'; // Note: Ensure firebase-setup exports 'doc' and 'getDoc'
+        import { services } from './config.js';
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzlRJwD_dJ9qh22zipP5Ux77q7-9IT33I",
-            authDomain: "hb-services-87372.firebaseapp.com",
-            projectId: "hb-services-87372",
-            storageBucket: "hb-services-87372.firebasestorage.app",
-            messagingSenderId: "326833059312",
-            appId: "1:326833059312:web:cee34d9ec63c4adfd21935"
-        };
+        // NOTE: You need to update firebase-setup.js to export 'doc' and 'getDoc' 
+        // OR import them directly from Firestore SDK if you prefer not to touch setup.js.
+        // For simplicity, I will import them from SDK here to match your setup:
+        import { getFirestore, doc as docRef, getDoc as getDocSnap } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        document.getElementById('btn-check').addEventListener('click', checkStatus);
 
-        // Service Mapping for clean display
-        const serviceNames = {
-            'travel_doc': 'Refugee Travel Document',
-            'passport': 'Passport Application',
-            'citizenship': 'Citizenship Application',
-            'health_card': 'Health Card Renewal',
-            'single_status': 'Single Status Letter',
-            'marriage_cert': 'Marriage Certificate',
-            'death_cert': 'Death Certificate',
-            'sin_card': 'SIN Number',
-            'ei_benefit': 'Employment Insurance (EI)',
-            'oas': 'Old Age Security',
-            'lost_passport': 'Lost Passport Replacement'
-        };
-
-        window.checkStatus = async () => {
+        async function checkStatus() {
             const input = document.getElementById('track-id');
             const id = input.value.trim();
             const btn = document.getElementById('btn-check');
             const resBox = document.getElementById('result-box');
             
-            if(!id) return alert("Please enter an ID");
+            if(!id) {
+                alert("Please enter a Tracking ID");
+                return;
+            }
 
             // UI Loading State
             const originalText = btn.innerText;
-            btn.innerHTML = "Searching...";
+            btn.innerHTML = `<span class="spinner"></span> Searching...`;
             btn.disabled = true;
-            resBox.style.display = 'none';
+            resBox.classList.add('hidden');
 
             try {
-                const docRef = doc(db, "submissions", id);
-                const docSnap = await getDoc(docRef);
+                // 2. Fetch Document
+                const d = docRef(db, "submissions", id);
+                const docSnap = await getDocSnap(d);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // 1. Service Name Formatting
-                    const niceName = serviceNames[data.service] || data.service.replace(/_/g, ' ').toUpperCase();
+                    // 3. Dynamic Service Name (from config.js)
+                    const serviceObj = services.find(s => s.id === data.service);
+                    // Default to English label, fallback to ID
+                    const niceName = serviceObj ? serviceObj.labels.en : data.service;
+                    
                     document.getElementById('res-service').innerText = niceName;
 
-                    // 2. PRIVACY: Mask the Name (J*** D**)
-                    let rawName = data.data.full_name || data.data.surname || data.data.groom_name || data.data.applicant_name || 'Unknown';
-                    // Simple mask logic
-                    const maskedName = rawName.split(' ').map(n => n[0] + '*'.repeat(n.length-1)).join(' ');
+                    // 4. Privacy Masking
+                    // Tries to find ANY name field
+                    let rawName = data.data.full_name || data.data.surname || data.data.groom_name || data.data.applicant_name || data.data.uci_number || 'Unknown';
+                    
+                    // Masking Logic: "John Doe" -> "J*** D**"
+                    const maskedName = rawName.split(' ').map(n => n.length > 1 ? n[0] + '*'.repeat(n.length-1) : n).join(' ');
+                    
                     document.getElementById('res-name').innerText = maskedName;
                     
-                    // 3. Date Formatting
+                    // 5. Date Formatting
                     let dateStr = "Pending";
                     if(data.submittedAt) {
                         dateStr = new Date(data.submittedAt.seconds * 1000).toLocaleDateString('en-CA', {
@@ -128,24 +132,27 @@
                     }
                     document.getElementById('res-date').innerText = dateStr;
 
-                    // 4. Status Badge
+                    // 6. Status Badge
                     const statusSpan = document.getElementById('res-status');
                     statusSpan.innerText = (data.status || 'New').replace(/_/g, ' ');
                     statusSpan.className = `status-badge status-${data.status || 'new'}`;
 
-                    resBox.style.display = 'block';
+                    resBox.classList.remove('hidden');
                 } else {
                     alert("❌ Application not found.\nPlease check the ID and try again.");
                 }
             } catch (error) {
-                console.error(error);
-                alert("Connection Error. Please try again.");
+                console.error("Status Check Error:", error);
+                if(error.code === 'permission-denied') {
+                    alert("Access Denied. The database rules do not allow reading this document.");
+                } else {
+                    alert("Connection Error. Please check your internet.");
+                }
             } finally {
-                // Restore Button
-                btn.innerText = originalText;
+                btn.innerHTML = originalText;
                 btn.disabled = false;
             }
-        };
+        }
     </script>
 </body>
 </html>
