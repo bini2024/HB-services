@@ -1,29 +1,21 @@
 // state.js
 
-// 1. The State Object (Private, so it can't be messed with directly)
-const state = {
+// 1. The State Object (Changed to EXPORT so ui.js can see it)
+export const state = {
     currentLang: 'en',
     currentService: null,
-    formData: {} // Store form answers here
+    formData: {} 
 };
 
 // 2. Subscribers (Functions waiting for updates)
 const listeners = [];
 
 /**
- * Get a snapshot of the current state
- * @returns {Object} A copy of the state
- */
-export function getState() {
-    return { ...state }; // Return a copy to prevent direct mutation
-}
-
-/**
  * Update the current service and notify listeners
  * @param {string} id - The service ID (e.g., 'passport_renewal')
  */
 export function setService(id) {
-    if (state.currentService === id) return; // Don't update if nothing changed
+    if (state.currentService === id) return;
     state.currentService = id;
     notifyListeners();
 }
@@ -43,7 +35,7 @@ export function setLanguage(lang) {
     
     state.currentLang = lang;
     
-    // Save preference to localStorage so it remembers next time
+    // Save preference to localStorage
     localStorage.setItem('hb_pref_lang', lang);
     
     notifyListeners();
@@ -51,7 +43,6 @@ export function setLanguage(lang) {
 
 /**
  * Subscribe to state changes.
- * The callback function will run whenever state updates.
  * @param {Function} callback 
  */
 export function subscribe(callback) {
@@ -60,7 +51,7 @@ export function subscribe(callback) {
 
 // Internal function to trigger updates
 function notifyListeners() {
-    console.log('State Updated:', state); // Helpful for debugging
+    console.log('State Updated:', state);
     listeners.forEach(listener => listener(state));
 }
 
