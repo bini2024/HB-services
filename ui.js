@@ -348,3 +348,70 @@ function getLabel(key) {
     const dict = { details: { en: "Service Details", am: "ዝርዝር መረጃ", ti: "ዝርዝር ሓበሬታ" } };
     return dict[key] ? dict[key][state.currentLang] : "";
 }
+
+// --- NEW MODAL FUNCTIONS (Paste at the bottom of ui.js) ---
+
+export function showInstructionModal(onConfirm) {
+    const modal = document.getElementById('instruction-modal');
+    const btn = document.getElementById('btn-start-form');
+    
+    if(!modal) return; // Safety check
+    modal.classList.remove('hidden');
+    
+    // Remove old listeners to prevent double-clicks
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+
+    newBtn.onclick = () => {
+        modal.classList.add('hidden');
+        if (onConfirm) onConfirm();
+    };
+}
+
+export function showReviewModal(formData, onConfirm) {
+    const modal = document.getElementById('review-modal');
+    const content = document.getElementById('review-content');
+    const btnConfirm = document.getElementById('btn-confirm-submit');
+    const btnEdit = document.getElementById('btn-edit');
+
+    if(!modal) return;
+
+    // Generate HTML for review
+    let html = '';
+    for (const [key, value] of Object.entries(formData.data)) {
+        if (typeof value !== 'object' && value) {
+            // Format label: "given_names" -> "GIVEN NAMES"
+            const label = key.replace(/_/g, ' ').toUpperCase();
+            html += `<div class="review-item">
+                        <span class="review-label">${label}</span>
+                        <span class="review-value">${value}</span>
+                     </div>`;
+        }
+    }
+    content.innerHTML = html;
+    modal.classList.remove('hidden');
+
+    // Edit Action
+    btnEdit.onclick = () => {
+        modal.classList.add('hidden');
+    };
+
+    // Confirm Action (Prevent duplicates)
+    const newBtn = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+    
+    newBtn.onclick = () => {
+        // Show loading state on the button
+        newBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+        newBtn.disabled = true;
+        
+        onConfirm(); // This calls the real submit logic
+        modal.classList.add('hidden');
+        
+        // Reset button after a delay (optional)
+        setTimeout(() => {
+            newBtn.innerHTML = 'Confirm & Submit / አረጋግጽ';
+            newBtn.disabled = false;
+        }, 3000);
+    };
+}
