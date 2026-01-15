@@ -460,3 +460,62 @@ input.error, select.error, textarea.error {
     .status-btn { font-size: 0.8rem; padding: 4px 8px; margin-left: 10px; }
     .logo { font-size: 1.1rem; }
 }
+
+/* --- Mobile Responsive Fixes --- */
+@media (max-width: 600px) {
+    /* 1. Prevent the whole page from shaking/sliding horizontally */
+    body, html {
+        overflow-x: hidden;
+        width: 100%;
+    }
+
+    .container {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 2. Fix the Header (Logo, Status, and Lang buttons) */
+    header {
+        flex-direction: column; 
+        gap: 10px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .lang-switch {
+        justify-content: center;
+        width: 100%;
+    }
+
+    /* 3. Fix the "Welcome" text so it doesn't cut off */
+    .hero h1 {
+        font-size: 1.8rem; /* Shrinks the text size on mobile */
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    /* 4. Fix the Service Grid (The Buttons) */
+    .grid {
+        display: grid !important;
+        /* This forces 2 columns on mobile. Change to 1fr if you want them stacked vertically */
+        grid-template-columns: repeat(2, 1fr) !important; 
+        gap: 12px !important;
+        width: 100%;
+    }
+
+    /* Ensure cards inside the grid don't have a fixed width */
+    .grid > div, .service-card {
+        width: auto !important;
+        min-width: 0 !important;
+        padding: 15px 10px;
+    }
+
+    /* 5. Fix the Alert box */
+    .alert {
+        flex-direction: column;
+        text-align: center;
+        font-size: 14px;
+    }
+}
+
