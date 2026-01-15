@@ -92,6 +92,34 @@
 </noscript>
 
 <script type="module" src="main.js"></script>
+<div id="instruction-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+        <h3>⚠️ Important Instructions / መምርሒ</h3>
+        <div class="modal-body">
+            <ul>
+                <li>Please fill all required fields carefully. <br> <small>በጃኹም ኩሉ ዘድሊ ቦታታት ብጥንቃቐ ምልእዎ።</small></li>
+                <li>Use <strong>English Letters</strong> only. <br> <small>ናይ እንግሊዝኛ ፊደላት ጥራይ ተጠቐሙ።</small></li>
+                <li>Ensure your attached documents are clear. <br> <small>ዝተተሓሓዙ ሰነዳት ንጹራት ምዃኖም አረጋግጹ።</small></li>
+                <li>You can save your progress and come back later. <br> <small>መስርሕኩም ዓቂብኩም (Save) ጸኒሕኩም ክትምለሱ ትኽእሉ ኢኹም።</small></li>
+            </ul>
+        </div>
+        <button id="btn-start-form" class="btn-submit">I Understand / ተረዲኡኒ ኣሎ</button>
+    </div>
+</div>
 
+<div id="review-modal" class="modal-overlay hidden">
+    <div class="modal-card wide">
+        <h3>Review Your Application / ማመልከቻዎን ይገምግሙ</h3>
+        <p class="sub-text">Please review your details below. Click "Edit" to make changes or "Confirm" to submit.</p>
+        
+        <div id="review-content" class="review-scroll-area">
+            </div>
+
+        <div class="modal-actions">
+            <button id="btn-edit" class="btn-secondary">← Edit / ኣስተኻኽል</button>
+            <button id="btn-confirm-submit" class="btn-submit">Confirm & Submit / አረጋግጽ</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
