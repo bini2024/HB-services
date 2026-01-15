@@ -5,7 +5,6 @@ import { restoreDraft } from './main.js';
 
 // --- TOAST NOTIFICATIONS ---
 export function createToastContainer() {
-    // Only create if it doesn't exist
     if (document.getElementById('toast-container')) return;
     
     const div = document.createElement('div');
@@ -32,7 +31,6 @@ export function showToast(msg, type = 'success') {
     
     container.appendChild(toast);
     
-    // Animation timing
     requestAnimationFrame(() => {
         setTimeout(() => toast.classList.add('show'), 10);
     });
@@ -50,7 +48,6 @@ export function renderGrid() {
     
     grid.innerHTML = '';
     
-    // Safety check: Are services loaded?
     if (!services || services.length === 0) {
         grid.innerHTML = '<p class="text-center">No services available.</p>';
         return;
@@ -59,13 +56,17 @@ export function renderGrid() {
     services.forEach(s => {
         const div = document.createElement('div');
         div.className = 'card';
-        // Accessibility: Allow keyboard selection
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
         div.setAttribute('aria-label', `Select ${s.labels.en}`);
 
-        // Handle Click and Enter key
-        const activate = () => loadForm(s.id, div);
+        // CLICK ACTION: Show Instructions First -> Then Load Form
+        const activate = () => {
+            showInstructionModal(() => {
+                loadForm(s.id, div);
+            });
+        };
+
         div.onclick = activate;
         div.onkeydown = (e) => { if(e.key === 'Enter') activate(); };
 
@@ -79,10 +80,9 @@ export function renderGrid() {
 
 // --- FORM LOADER ---
 export function loadForm(serviceId, cardElem) {
-    // 1. Update State
     setService(serviceId);
 
-    // 2. UI Transitions
+    // UI Transitions
     document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
     if(cardElem) cardElem.classList.add('active');
 
@@ -92,32 +92,27 @@ export function loadForm(serviceId, cardElem) {
     const formContainer = document.getElementById('form-container');
     const dynamicInputs = document.getElementById('dynamic-inputs');
 
-    // Hide Home Elements
     if(hero) hero.classList.add('hidden');
     if(grid) grid.classList.add('hidden');
     if(selectTitle) selectTitle.classList.add('hidden');
 
-    // Show Form Container
     formContainer.classList.remove('hidden');
     window.scrollTo(0, 0);
 
-    // 3. Render Fields
+    // Render Fields
     dynamicInputs.innerHTML = ''; 
     
-    // Add "Service Details" Header
     const div = document.createElement('div');
     div.className = 'form-section-title';
     div.innerText = getLabel('details');
     dynamicInputs.appendChild(div);
 
-    // Render the inputs based on config
     if(specificFields[serviceId]) {
         renderFields(specificFields[serviceId]);
     } else {
         dynamicInputs.innerHTML = '<p>Form configuration not found.</p>';
     }
 
-    // 4. Restore Draft (if exists)
     restoreDraft(serviceId);
 }
 
@@ -125,26 +120,24 @@ export function loadForm(serviceId, cardElem) {
 export function renderFields(fieldList, parentElement = null) {
     const container = parentElement || document.getElementById('dynamic-inputs');
     
-    fieldList.forEach((field, index) => {
+    fieldList.forEach((field) => {
         const group = document.createElement('div');
         group.className = 'input-group';
         
-        // Generate unique ID for A11y (Accessibility)
         const uniqueId = field.id || `field_${field.name}_${Math.random().toString(36).substr(2, 9)}`;
 
-        // -- LABEL --
+        // Label
         const lbl = document.createElement('label');
         if(field.label) {
             lbl.innerText = field.label[state.currentLang] || field.label.en;
-            // Store translations for live switching
             lbl.dataset.en = field.label.en;
             lbl.dataset.am = field.label.am;
             lbl.dataset.ti = field.label.ti;
-            lbl.setAttribute('for', uniqueId); // Link label to input
+            lbl.setAttribute('for', uniqueId);
         }
         group.appendChild(lbl);
 
-        // -- REPEATER --
+        // Repeater
         if (field.type === 'repeater') {
             const repeaterBox = document.createElement('div');
             repeaterBox.className = 'repeater-box';
@@ -157,19 +150,17 @@ export function renderFields(fieldList, parentElement = null) {
             addBtn.style.marginTop = "10px";
             addBtn.onclick = () => addRepeaterRow(repeaterBox, field.fields);
             
-            // Add one empty row by default
             addRepeaterRow(repeaterBox, field.fields);
             
             group.appendChild(repeaterBox);
             group.appendChild(addBtn);
             container.appendChild(group);
-            return; // Skip the rest for repeaters
+            return; 
         }
 
-        // -- INPUT TYPES --
+        // Input Types
         let input;
 
-        // 1. Checkbox Group
         if (field.type === 'checkbox_group') {
             input = document.createElement('div');
             field.options.forEach(opt => {
@@ -183,7 +174,7 @@ export function renderFields(fieldList, parentElement = null) {
                 cb.type = 'checkbox';
                 cb.name = field.name;
                 cb.value = opt;
-                cb.style.width = 'auto'; // Prevent full width
+                cb.style.width = 'auto'; 
                 cb.style.marginRight = '8px';
 
                 optLabel.appendChild(cb);
@@ -191,7 +182,6 @@ export function renderFields(fieldList, parentElement = null) {
                 input.appendChild(optLabel);
             });
         } 
-        // 2. Single Checkbox (Boolean)
         else if (field.type === 'checkbox') {
              input = document.createElement('div');
              const label = document.createElement('label');
@@ -211,12 +201,10 @@ export function renderFields(fieldList, parentElement = null) {
              label.appendChild(cb);
              label.appendChild(document.createTextNode(field.label[state.currentLang] || field.label.en));
              
-             // Hide the top label since we merged it here
              if(group.querySelector('label')) group.querySelector('label').style.display = 'none';
              
              input.appendChild(label);
         } 
-        // 3. Textarea
         else if (field.type === 'textarea') {
             input = document.createElement('textarea');
             input.rows = 4;
@@ -224,7 +212,6 @@ export function renderFields(fieldList, parentElement = null) {
             input.id = uniqueId;
             if(field.required) input.required = true;
         } 
-        // 4. Select Dropdown
         else if (field.type === 'select') {
             input = document.createElement('select');
             input.name = field.name;
@@ -242,7 +229,6 @@ export function renderFields(fieldList, parentElement = null) {
                 input.appendChild(o);
             });
         } 
-        // 5. Standard Input (text, date, email, number)
         else {
             input = document.createElement('input');
             input.type = field.type;
@@ -251,13 +237,9 @@ export function renderFields(fieldList, parentElement = null) {
             if(field.required) input.required = true;
         }
 
-        // Placeholder logic
         if(field.type !== 'checkbox' && field.type !== 'checkbox_group' && field.placeholder) {
             input.placeholder = field.placeholder[state.currentLang] || "";
         }
-        
-        // NOTE: We REMOVED the 'input' event listener here. 
-        // Main.js now handles the "saveDraft" via event delegation. 
         
         group.appendChild(input);
         container.appendChild(group);
@@ -269,17 +251,14 @@ export function addRepeaterRow(container, fields) {
     const row = document.createElement('div');
     row.className = 'repeater-row';
     
-    // Add fields to this row
     renderFields(fields, row);
     
-    // Add Remove Button
     const delBtn = document.createElement('button');
     delBtn.innerText = "Remove / አጥፋ";
     delBtn.className = 'btn-danger small';
     delBtn.type = 'button';
     delBtn.style.marginTop = "10px";
     delBtn.onclick = () => {
-        // Simple confirm if data exists
         if(row.querySelector('input').value !== "") {
             if(confirm("Remove this entry?")) row.remove();
         } else {
@@ -299,27 +278,22 @@ export function updateFileCount() {
 
 // --- LANGUAGE SWITCHER ---
 export function updateLanguageUI(lang) {
-    // 1. Update State (Redundant if called via state subscription, but safe)
     setLanguage(lang);
 
-    // 2. Update Toggle Buttons
     document.querySelectorAll('.lang-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.lang === lang);
     });
 
-    // 3. Update Service Cards
     document.querySelectorAll('.card-title').forEach(el => {
         const sid = el.dataset.sid;
         const service = services.find(s => s.id === sid);
         if(service) el.innerText = service.labels[lang];
     });
 
-    // 4. Update Form Labels
     document.querySelectorAll('label').forEach(lbl => {
         if(lbl.dataset[lang]) lbl.innerText = lbl.dataset[lang];
     });
     
-    // 5. Update Static Texts (The dictionary)
     const texts = {
         en: { heroT: "Welcome to HB Services", heroS: "Professional assistance for all your documentation needs.", select: "Select Service", app: "Application", docs: "Documents", upload: "Upload ID / Documents", btn: "Submit Application" },
         am: { heroT: "ወደ HB ሰርቪስ እንኳን በደህና መጡ", heroS: "ለሁሉም ዓይነት የሰነድ ጉዳዮችዎ ሙያዊ እገዛ እናደርጋለን።", select: "አገልግሎት ይምረጡ", app: "ማመልከቻ", docs: "ሰነዶች", upload: "መታወቂያ/ሰነድ ያስገቡ", btn: "ማመልከቻውን ላክ" },
@@ -338,7 +312,7 @@ export function updateLanguageUI(lang) {
     }
 }
 
-// Helper to safely set text
+// --- HELPERS ---
 function setText(id, text) {
     const el = document.getElementById(id);
     if(el) el.innerText = text;
@@ -349,16 +323,16 @@ function getLabel(key) {
     return dict[key] ? dict[key][state.currentLang] : "";
 }
 
-// --- NEW MODAL FUNCTIONS (Paste at the bottom of ui.js) ---
+// --- NEW MODAL FUNCTIONS ---
 
 export function showInstructionModal(onConfirm) {
     const modal = document.getElementById('instruction-modal');
     const btn = document.getElementById('btn-start-form');
     
-    if(!modal) return; // Safety check
+    if(!modal) return; 
     modal.classList.remove('hidden');
     
-    // Remove old listeners to prevent double-clicks
+    // Replace button to clear old listeners
     const newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
 
@@ -380,7 +354,6 @@ export function showReviewModal(formData, onConfirm) {
     let html = '';
     for (const [key, value] of Object.entries(formData.data)) {
         if (typeof value !== 'object' && value) {
-            // Format label: "given_names" -> "GIVEN NAMES"
             const label = key.replace(/_/g, ' ').toUpperCase();
             html += `<div class="review-item">
                         <span class="review-label">${label}</span>
@@ -396,19 +369,17 @@ export function showReviewModal(formData, onConfirm) {
         modal.classList.add('hidden');
     };
 
-    // Confirm Action (Prevent duplicates)
+    // Confirm Action
     const newBtn = btnConfirm.cloneNode(true);
     btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     
     newBtn.onclick = () => {
-        // Show loading state on the button
         newBtn.innerHTML = '<span class="spinner"></span> Submitting...';
         newBtn.disabled = true;
         
-        onConfirm(); // This calls the real submit logic
+        onConfirm(); 
         modal.classList.add('hidden');
         
-        // Reset button after a delay (optional)
         setTimeout(() => {
             newBtn.innerHTML = 'Confirm & Submit / አረጋግጽ';
             newBtn.disabled = false;
