@@ -2,7 +2,7 @@
 import { db, storage, collection, addDoc, serverTimestamp, ref, uploadBytes, getDownloadURL } from './firebase-setup.js';
 import { state, setLanguage, subscribe } from './state.js';
 import { specificFields } from './config.js';
-import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow } from './ui.js';
+import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow, showReviewModal } from './ui.js';
 
 // --- CONSTANTS ---
 const ENGLISH_REGEX = /^[A-Za-z0-9\s.,'()-]*$/; // Allows letters, numbers, and basic punctuation
@@ -15,7 +15,6 @@ window.addEventListener('DOMContentLoaded', () => {
     // 1. Subscribe to State Changes (This connects state.js to the UI)
     subscribe((newState) => {
         updateLanguageUI(newState.currentLang);
-        // If you had other UI elements relying on state, you'd update them here too
     });
 
     // 2. File Upload Listener
@@ -23,6 +22,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     if(uploadBox && fileInput) {
         // Accessibility: allow "Enter" key to trigger upload
+        uploadBox.setAttribute('tabindex', '0');
         uploadBox.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -33,13 +33,29 @@ window.addEventListener('DOMContentLoaded', () => {
         fileInput.addEventListener('change', updateFileCount);
     }
 
-    // 3. Submit Button Listener
+    // 3. Submit Button Listener (UPDATED FOR REVIEW MODAL)
     const form = document.getElementById('main-form');
     if(form) {
-        form.addEventListener('submit', handleFormSubmit);
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // A. Validate first
+            if(!validateForm()) {
+                showToast("Please check errors in the form.", "error");
+                return;
+            }
+
+            // B. Collect Data for Review
+            const formData = collectFormData(); 
+
+            // C. Show Review Modal
+            showReviewModal(formData, () => {
+                // D. Actually Submit to Firebase (Callback)
+                submitToFirebase(); 
+            });
+        });
         
         // AUTO-SAVE DRAFT LOGIC
-        // We listen to 'input' events on the whole form and save after user stops typing
         let debounceTimer;
         form.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
@@ -70,32 +86,61 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// --- LOGIC FUNCTIONS ---
-
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-submit');
+// --- HELPER: COLLECT DATA (For Review Modal) ---
+function collectFormData() {
     const form = document.getElementById('main-form');
+    let data = {};
     
+    // 1. Standard Inputs
+    const standardInputs = form.querySelectorAll(':not(.repeater-row) > .input-group > input, :not(.repeater-row) > .input-group > select, :not(.repeater-row) > .input-group > textarea');
+    standardInputs.forEach(input => {
+         if(input.name && input.type !== 'submit' && input.type !== 'file') {
+             if(input.type === 'checkbox') {
+                 // Checkbox logic
+                 if(document.querySelectorAll(`[name="${input.name}"]`).length > 1) {
+                     if(!data[input.name]) data[input.name] = [];
+                     if(input.checked) data[input.name].push(input.value);
+                 } else {
+                     data[input.name] = input.checked ? "Yes" : "No"; 
+                 }
+             } else {
+                 data[input.name] = input.value;
+             }
+         }
+    });
+
+    // 2. Repeater Inputs (Simplified for Review Summary)
+    const repeaters = form.querySelectorAll('.repeater-box');
+    repeaters.forEach(box => {
+        const sectionName = box.id.replace('repeater-', '');
+        const rows = box.querySelectorAll('.repeater-row');
+        // Just count entries for the review summary to keep it clean
+        if(rows.length > 0) {
+            data[sectionName] = `${rows.length} Entries Provided`;
+        }
+    });
+    
+    return { 
+        service: state.currentService,
+        language: state.currentLang,
+        data: data 
+    };
+}
+
+// --- HELPER: SUBMIT TO FIREBASE (The Real Submit) ---
+async function submitToFirebase() {
     if (!db) {
         alert("CRITICAL ERROR: Firebase is not connected. Check API Keys/Internet.");
         return;
     }
 
-    // Validate
-    if(!validateForm()) {
-        showToast("Please check errors in the form.", "error");
-        return;
-    }
-
-    const originalText = btn.innerText;
-    btn.innerHTML = `<span class="spinner"></span> Generating ID...`;
-    btn.disabled = true;
+    const form = document.getElementById('main-form');
 
     try {
-        // Upload Files
+        // 1. Upload Files first
         const fileInput = document.getElementById('file-input');
         const uploadedFileUrls = [];
+        
         if (fileInput && fileInput.files.length > 0) {
             for (const file of fileInput.files) {
                 const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
@@ -105,8 +150,8 @@ async function handleFormSubmit(e) {
             }
         }
 
-        // Collect Data
-        let formData = {
+        // 2. Re-Collect Final Data Structure
+        let finalData = {
             service: state.currentService,
             status: 'new',
             submittedAt: serverTimestamp(),
@@ -118,12 +163,21 @@ async function handleFormSubmit(e) {
         // Standard Inputs
         const standardInputs = form.querySelectorAll(':not(.repeater-row) > .input-group > input, :not(.repeater-row) > .input-group > select, :not(.repeater-row) > .input-group > textarea');
         standardInputs.forEach(input => {
-             if(input.name && input.type !== 'submit') {
-                 formData.data[input.name] = input.value;
+             if(input.name && input.type !== 'submit' && input.type !== 'file') {
+                 if(input.type === 'checkbox') {
+                     if(document.querySelectorAll(`[name="${input.name}"]`).length > 1) {
+                         if(!finalData.data[input.name]) finalData.data[input.name] = [];
+                         if(input.checked) finalData.data[input.name].push(input.value);
+                     } else {
+                         finalData.data[input.name] = input.checked; 
+                     }
+                 } else {
+                     finalData.data[input.name] = input.value;
+                 }
              }
         });
 
-        // Repeater Inputs
+        // Repeater Inputs (Full Data)
         const repeaters = form.querySelectorAll('.repeater-box');
         repeaters.forEach(box => {
             const sectionName = box.id.replace('repeater-', ''); 
@@ -136,16 +190,15 @@ async function handleFormSubmit(e) {
                 });
                 rowData.push(rowObj);
             });
-            formData.data[sectionName] = rowData;
+            finalData.data[sectionName] = rowData;
         });
 
-        // Submit to Firebase
-        const docRef = await addDoc(collection(db, "submissions"), formData);
+        // 3. Submit to Firestore
+        const docRef = await addDoc(collection(db, "submissions"), finalData);
         console.log("SUCCESS! ID:", docRef.id);
         
-        // Clear Draft
+        // 4. Cleanup
         localStorage.removeItem(`draft_${state.currentService}`);
-        
         showToast("Application submitted successfully!");
         
         setTimeout(() => {
@@ -156,8 +209,11 @@ async function handleFormSubmit(e) {
     } catch(err) {
         console.error("Submission Error:", err);
         showToast("Error: " + err.message, "error");
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        
+        // Reset the button in UI via callback or reload, 
+        // effectively handled by the user trying again or reloading.
+        // But let's manually reset the modal button if possible, 
+        // though the modal is already closed by ui.js logic.
     }
 }
 
@@ -182,11 +238,10 @@ function validateForm() {
         }
 
         // 2. Check English Only (if it's a text input)
-        // We skip type="date", type="email" (email has its own format), etc.
         if (input.type === 'text' || input.tagName === 'TEXTAREA') {
             if (input.value.trim() && !ENGLISH_REGEX.test(input.value)) {
                 input.classList.add('error');
-                showToast("Please use English letters only.", "error"); // Toast explanation
+                showToast("Please use English letters only.", "error");
                 isValid = false;
                 if(!firstError) firstError = input;
             }
@@ -240,7 +295,6 @@ export function saveDraft() {
     });
 
     localStorage.setItem(`draft_${state.currentService}`, JSON.stringify(data));
-    console.log("Draft Saved");
 }
 
 export function restoreDraft(serviceId) {
@@ -272,7 +326,11 @@ export function restoreDraft(serviceId) {
             } else {
                 const el = form.querySelector(`[name="${key}"]`);
                 if(el && !el.closest('.repeater-row')) {
-                   el.value = data[key];
+                   if(el.type === 'checkbox') {
+                       el.checked = data[key];
+                   } else {
+                       el.value = data[key];
+                   }
                 }
             }
         });
