@@ -115,7 +115,26 @@ export function loadForm(serviceId, cardElem) {
 export function renderFields(fieldList, parentElement = null) {
     const container = parentElement || document.getElementById('dynamic-inputs');
     
-    fieldList.forEach((field) => {
+    fieldList.forEach((field) => {  // 1. HANDLE SECTION HEADERS (Add this at the top of the loop)
+        if (field.type === 'header') {
+            const header = document.createElement('h3');
+            // If you have a 'state' variable for language, use it. Otherwise default to English.
+            const lang = (typeof state !== 'undefined' && state.currentLang) ? state.currentLang : 'en';
+            
+            header.innerText = field.label[lang] || field.label.en;
+            
+            // Styling to make it look like a separator
+            header.className = 'form-section-header';
+            header.style.gridColumn = "1 / -1"; // Span across both columns
+            header.style.marginTop = "25px";
+            header.style.borderBottom = "2px solid #e0e0e0";
+            header.style.paddingBottom = "8px";
+            header.style.color = "#2c3e50";
+            header.style.fontSize = "1.1rem";
+            
+            container.appendChild(header);
+            return; // <--- CRITICAL: Stops the function here for this item
+        }
         const group = document.createElement('div');
         group.className = 'input-group';
         
