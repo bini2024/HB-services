@@ -1,4 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HB Services Canada - Professional assistance for Passports, Travel Docs, and Citizenship applications.">
+    <title>HB Services Canada</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <meta name="theme-color" content="#28a745">
+</head>
+<body>
+
+<header>
+    <div class="logo">HB Services</div>
+    
+    <div class="lang-switch">
+        <button class="lang-btn active" data-lang="en" aria-label="Switch to English">EN</button>
+        <button class="lang-btn" data-lang="am" aria-label="Switch to Amharic">አማ</button>
+        <button class="lang-btn" data-lang="ti" aria-label="Switch to Tigrinya">ትግ</button>
+    </div>
+
+    <a href="status.html" class="status-btn" id="btn-status-header">
+        Check Status / ወረቀትካ መከታተሊ
+    </a>
+</header>
+
 <div class="container">
+    
     <div class="hero" id="hero-section">
         <h1 id="hero-title">Welcome to HB Services</h1>
         <p id="hero-subtitle">How can we help you today?</p>
@@ -8,40 +41,43 @@
         
         <div class="menu-card" onclick="showSection('services')">
             <div class="menu-icon">🚀</div>
-            <h3>Start Application</h3>
-            <p>Passport, Visa, Citizenship</p>
+            <h3 id="menu-start-title">Start Application</h3>
+            <p id="menu-start-desc">Passport, Visa, Citizenship</p>
         </div>
 
         <div class="menu-card" onclick="window.location.href='status.html'">
             <div class="menu-icon">🔍</div>
-            <h3>Check Status</h3>
-            <p>Track your file</p>
+            <h3 id="menu-status-title">Check Status</h3>
+            <p id="menu-status-desc">Track your file</p>
         </div>
 
         <div class="menu-card" onclick="showSection('instructions')">
             <div class="menu-icon">📋</div>
-            <h3>Documents & Info</h3>
-            <p>Requirements & Guides</p>
+            <h3 id="menu-docs-title">Documents & Info</h3>
+            <p id="menu-docs-desc">Requirements & Guides</p>
         </div>
     </div>
 
     <div id="services-section" class="hidden">
-        <button class="back-link" onclick="goHome()">← Back to Home</button>
-        <h3 class="section-label">Select Service</h3>
+        <button class="back-link" id="back-link-services" onclick="goHome()">← Back to Home</button>
+        <h3 class="section-label" id="lbl-select-service">Select Service</h3>
+        
         <div class="grid" id="service-grid">
             <div class="loading-spinner">Loading Services...</div>
         </div>
     </div>
 
     <div id="instructions-section" class="hidden">
-        <button class="back-link" onclick="goHome()">← Back to Home</button>
+        <button class="back-link" id="back-link-instr" onclick="goHome()">← Back to Home</button>
         <div class="info-card">
-            <h3>📝 Required Documents Guide</h3>
-            <ul class="doc-list">
-                <li><strong>Passport:</strong> Must be valid for at least 6 months.</li>
-                <li><strong>Photo:</strong> White background, no glasses.</li>
-                <li><strong>Scanning:</strong> Please use a scanner or clear photo.</li>
-            </ul>
+            <h3 id="instr-title">📝 Required Documents Guide</h3>
+            <div class="modal-body">
+                <ul class="doc-list">
+                    <li><strong>Passport:</strong> Must be valid for at least 6 months.</li>
+                    <li><strong>Photo:</strong> White background, no glasses.</li>
+                    <li><strong>Scanning:</strong> Please use a scanner or clear photo.</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -52,16 +88,19 @@
         </div>
 
         <form id="main-form" novalidate autocomplete="off">
+            
             <div id="dynamic-inputs"></div>
             
             <div class="form-section-title" id="lbl-docs">Documents</div>
             <div class="input-group">
                 <label id="lbl-upload">Upload ID / Supporting Docs</label>
+                
                 <div class="upload-box" id="upload-box-trigger" tabindex="0">
                     <span class="icon">📂</span>
                     <span id="upload-text">Click to Select Files (PDF, JPG)</span>
                     <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none">
                 </div>
+
                 <ul id="file-list-preview" class="file-list"></ul>
             </div>
 
@@ -69,3 +108,21 @@
         </form>
     </div>
 </div>
+
+<footer class="main-footer">
+    <p><strong>Privacy Notice:</strong> Your data is submitted securely and used solely for the purpose of processing your application.</p>
+    <p>HB Services Canada © 2024</p>
+</footer>
+
+<div id="toast-container" class="toast-container"></div>
+
+<script src="main.js" defer></script>
+
+<noscript>
+    <div class="alert error">
+        This website requires JavaScript to function. Please enable JavaScript in your browser settings.
+    </div>
+</noscript>
+
+</body>
+</html>
