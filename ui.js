@@ -313,6 +313,32 @@ function getLabel(key) {
     return dict[key] ? dict[key][state.currentLang] : "";
 }
 
+// --- MISSING FUNCTION RESTORED: UPDATE FILE COUNT ---
+export function updateFileCount() {
+    const input = document.getElementById('file-input');
+    const list = document.getElementById('file-list-preview');
+    const uploadText = document.getElementById('upload-text');
+    
+    if (!input || !list) return;
+    
+    list.innerHTML = ''; // Clear current list
+    
+    if (input.files.length > 0) {
+        if(uploadText) uploadText.innerText = `${input.files.length} file(s) selected`;
+        
+        Array.from(input.files).forEach(file => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${file.name} <small>(${Math.round(file.size/1024)}KB)</small></span>
+                <span style="color:var(--primary); font-weight:bold;">Ready</span>
+            `;
+            list.appendChild(li);
+        });
+    } else {
+        if(uploadText) uploadText.innerText = "Click to Select Files (PDF, JPG)";
+    }
+}
+
 // --- INSTRUCTION MODAL ---
 export function showInstructionModal(onConfirm) {
     let modalOverlay = document.getElementById('dynamic-instr-modal');
@@ -345,13 +371,10 @@ export function showInstructionModal(onConfirm) {
     };
 }
 
-// --- RESTORED: REVIEW MODAL (This was missing) ---
+// --- REVIEW MODAL ---
 export function showReviewModal(formData, onConfirm) {
-    // 1. Check if Review Modal HTML exists (it should be in index.html)
-    // If not, we can generate it dynamically like the instruction modal
     let modal = document.getElementById('review-modal');
     
-    // Safety: Generate modal if missing from HTML
     if (!modal) {
         const div = document.createElement('div');
         div.id = 'review-modal';
@@ -375,7 +398,6 @@ export function showReviewModal(formData, onConfirm) {
     const btnConfirm = document.getElementById('btn-confirm-submit');
     const btnEdit = document.getElementById('btn-edit');
 
-    // 2. Generate Review HTML
     let html = '';
     for (const [key, value] of Object.entries(formData.data)) {
         if (typeof value !== 'object' && value) {
@@ -388,18 +410,14 @@ export function showReviewModal(formData, onConfirm) {
     }
     content.innerHTML = html;
     
-    // 3. Show Modal
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
 
-    // 4. Edit Action
     btnEdit.onclick = () => {
         modal.classList.add('hidden');
         modal.style.display = 'none';
     };
 
-    // 5. Confirm Action
-    // Clone to remove old listeners
     const newBtn = btnConfirm.cloneNode(true);
     btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     
@@ -409,11 +427,9 @@ export function showReviewModal(formData, onConfirm) {
         
         onConfirm(); 
         
-        // Modal closes after submitToFirebase handles the success/alert
         modal.classList.add('hidden');
         modal.style.display = 'none';
         
-        // Reset button state (in case of error)
         setTimeout(() => {
             newBtn.innerHTML = 'Confirm & Submit / አረጋግጽ';
             newBtn.disabled = false;
@@ -421,12 +437,11 @@ export function showReviewModal(formData, onConfirm) {
     };
 }
 
-// --- RESTORED: REPEATER ROW FUNCTION (This was missing) ---
+// --- REPEATER ROW FUNCTION ---
 export function addRepeaterRow(container, fields) {
     const row = document.createElement('div');
     row.className = 'repeater-row';
     
-    // Use the existing renderFields function to fill this row
     renderFields(fields, row);
     
     const delBtn = document.createElement('button');
@@ -435,7 +450,6 @@ export function addRepeaterRow(container, fields) {
     delBtn.type = 'button';
     delBtn.style.marginTop = "10px";
     delBtn.onclick = () => {
-        // Confirmation before deleting data
         if(row.querySelector('input').value !== "") {
             if(confirm("Remove this entry?")) row.remove();
         } else {
