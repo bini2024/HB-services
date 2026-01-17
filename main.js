@@ -2,18 +2,46 @@
 import { db, storage, collection, addDoc, serverTimestamp, ref, uploadBytes, getDownloadURL } from './firebase-setup.js';
 import { state, setLanguage, subscribe } from './state.js';
 import { specificFields } from './config.js';
-import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow, showReviewModal } from './ui.js';
+import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow, showReviewModal, loadForm } from './ui.js';
 
 // --- CONSTANTS ---
-// FIXED: Added # and / to allow addresses like "Apt #101" or "1/2 Main St"
 const ENGLISH_REGEX = /^[A-Za-z0-9\s.,'()\-#\/]*$/; 
+
+// --- MAKE FUNCTIONS PUBLIC (Fixes "showSection is not defined") ---
+window.showSection = function(sectionName) {
+    // Hide everything first
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('hero-section').classList.add('hidden');
+    document.getElementById('services-section').classList.add('hidden');
+    document.getElementById('instructions-section').classList.add('hidden');
+    document.getElementById('form-container').classList.add('hidden');
+
+    // Show the requested section
+    if (sectionName === 'services') {
+        document.getElementById('services-section').classList.remove('hidden');
+        renderGrid(); // Ensure grid is rendered
+    } else if (sectionName === 'instructions') {
+        document.getElementById('instructions-section').classList.remove('hidden');
+    }
+};
+
+window.goHome = function() {
+    // Hide inner pages
+    document.getElementById('services-section').classList.add('hidden');
+    document.getElementById('instructions-section').classList.add('hidden');
+    document.getElementById('form-container').classList.add('hidden');
+    
+    // Show Main Menu
+    document.getElementById('main-menu').classList.remove('hidden');
+    document.getElementById('hero-section').classList.remove('hidden');
+    window.scrollTo(0,0);
+};
 
 // --- INITIALIZATION ---
 window.addEventListener('DOMContentLoaded', () => {
     createToastContainer();
-    renderGrid(); // Initial Render
-
-    // 1. Subscribe to State Changes (This connects state.js to the UI)
+    
+    // 1. Subscribe to State Changes
     subscribe((newState) => {
         updateLanguageUI(newState.currentLang);
     });
@@ -22,7 +50,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const uploadBox = document.getElementById('upload-box-trigger');
     const fileInput = document.getElementById('file-input');
     if(uploadBox && fileInput) {
-        // Accessibility: allow "Enter" key to trigger upload
         uploadBox.setAttribute('tabindex', '0');
         uploadBox.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -40,29 +67,25 @@ window.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // A. Validate first
             if(!validateForm()) {
                 showToast("Please check errors in the form.", "error");
                 return;
             }
 
-            // B. Collect Data for Review
             const formData = collectFormData(); 
 
-            // C. Show Review Modal
             showReviewModal(formData, () => {
-                // D. Actually Submit to Firebase (Callback)
                 submitToFirebase(); 
             });
         });
         
-        // AUTO-SAVE DRAFT LOGIC
+        // Auto-save draft
         let debounceTimer;
         form.addEventListener('input', (e) => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
                 saveDraft();
-            }, 1000); // Save 1 second after last keystroke
+            }, 1000);
         });
     }
 
@@ -73,36 +96,17 @@ window.addEventListener('DOMContentLoaded', () => {
             setLanguage(lang); 
         });
     });
-    
-    // 5. Back Button
-    const backBtn = document.getElementById('back-btn');
-    if(backBtn) {
-        backBtn.addEventListener('click', () => {
-            // Hide Form
-            document.getElementById('form-container').classList.add('hidden');
-            
-            // Show Home Elements
-            document.getElementById('main-menu').classList.remove('hidden');
-            document.getElementById('hero-section').classList.remove('hidden');
-            document.getElementById('services-section').classList.add('hidden'); // Ensure services grid is hidden if we used menu
-            
-            // Reset Scroll
-            window.scrollTo(0,0);
-        });
-    }
 });
 
-// --- HELPER: COLLECT DATA (For Review Modal) ---
+// --- HELPER: COLLECT DATA ---
 function collectFormData() {
     const form = document.getElementById('main-form');
     let data = {};
     
-    // 1. Standard Inputs
     const standardInputs = form.querySelectorAll(':not(.repeater-row) > .input-group > input, :not(.repeater-row) > .input-group > select, :not(.repeater-row) > .input-group > textarea');
     standardInputs.forEach(input => {
          if(input.name && input.type !== 'submit' && input.type !== 'file') {
              if(input.type === 'checkbox') {
-                 // Checkbox logic
                  if(document.querySelectorAll(`[name="${input.name}"]`).length > 1) {
                      if(!data[input.name]) data[input.name] = [];
                      if(input.checked) data[input.name].push(input.value);
@@ -115,7 +119,6 @@ function collectFormData() {
          }
     });
 
-    // 2. Repeater Inputs
     const repeaters = form.querySelectorAll('.repeater-box');
     repeaters.forEach(box => {
         const sectionName = box.id.replace('repeater-', '');
@@ -132,22 +135,21 @@ function collectFormData() {
     };
 }
 
-// --- HELPER: SUBMIT TO FIREBASE (The Real Submit) ---
+// --- HELPER: SUBMIT TO FIREBASE ---
 async function submitToFirebase() {
     if (!db) {
-        alert("CRITICAL ERROR: Firebase is not connected. Check API Keys/Internet.");
+        alert("CRITICAL ERROR: Firebase is not connected.");
         return;
     }
 
     const form = document.getElementById('main-form');
 
     try {
-        // 1. Upload Files first
         const fileInput = document.getElementById('file-input');
         const uploadedFileUrls = [];
         
         if (fileInput && fileInput.files.length > 0) {
-            showToast("Uploading files...", "success"); // Feedback to user
+            showToast("Uploading files...", "success"); 
             for (const file of fileInput.files) {
                 const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
                 const snapshot = await uploadBytes(storageRef, file);
@@ -156,7 +158,6 @@ async function submitToFirebase() {
             }
         }
 
-        // 2. Re-Collect Final Data Structure
         let finalData = {
             service: state.currentService,
             status: 'new',
@@ -166,7 +167,6 @@ async function submitToFirebase() {
             data: {}
         };
 
-        // Standard Inputs
         const standardInputs = form.querySelectorAll(':not(.repeater-row) > .input-group > input, :not(.repeater-row) > .input-group > select, :not(.repeater-row) > .input-group > textarea');
         standardInputs.forEach(input => {
              if(input.name && input.type !== 'submit' && input.type !== 'file') {
@@ -183,7 +183,6 @@ async function submitToFirebase() {
              }
         });
 
-        // Repeater Inputs (Full Data)
         const repeaters = form.querySelectorAll('.repeater-box');
         repeaters.forEach(box => {
             const sectionName = box.id.replace('repeater-', ''); 
@@ -199,15 +198,11 @@ async function submitToFirebase() {
             finalData.data[sectionName] = rowData;
         });
 
-        // 3. Submit to Firestore
         const docRef = await addDoc(collection(db, "submissions"), finalData);
-        console.log("SUCCESS! ID:", docRef.id);
         
-        // 4. Cleanup
         localStorage.removeItem(`draft_${state.currentService}`);
         
-        // Success Message
-        alert(`✅ APPLICATION SUBMITTED!\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease take a screenshot.`);
+        alert(`✅ APPLICATION SUBMITTED!\n\nTracking ID: ${docRef.id}`);
         location.reload();
 
     } catch(err) {
@@ -216,22 +211,15 @@ async function submitToFirebase() {
     }
 }
 
-/**
- * Validates Required Fields AND English Characters
- */
+// --- HELPER: VALIDATION ---
 function validateForm() {
     let isValid = true;
     let firstError = null;
-
     const inputs = document.querySelectorAll('#dynamic-inputs input, #dynamic-inputs select, #dynamic-inputs textarea');
     
     inputs.forEach(input => {
-        // Reset previous errors
         input.classList.remove('error');
-        
-        // 1. Check Required
         if(input.hasAttribute('required')) {
-            // FIXED: Special check for checkboxes
             if(input.type === 'checkbox') {
                 if(!input.checked) {
                     input.classList.add('error');
@@ -244,9 +232,6 @@ function validateForm() {
                 if(!firstError) firstError = input;
             }
         }
-
-        // 2. Check English Only (if it's a text input)
-        // Skip validation for Emails and Dates
         if ((input.type === 'text' || input.tagName === 'TEXTAREA') && input.value.trim()) {
             if (!ENGLISH_REGEX.test(input.value)) {
                 input.classList.add('error');
@@ -261,7 +246,6 @@ function validateForm() {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         firstError.focus();
     }
-
     return isValid;
 }
 
@@ -271,7 +255,6 @@ export function saveDraft() {
     const form = document.getElementById('main-form');
     const data = {};
     
-    // Standard inputs
     const inputs = form.querySelectorAll(':not(.repeater-row) > .input-group input, :not(.repeater-row) > .input-group select, :not(.repeater-row) > .input-group textarea');
     inputs.forEach(el => {
         if(!el.name || el.type === 'submit' || el.type === 'file') return;
@@ -287,7 +270,6 @@ export function saveDraft() {
         }
     });
 
-    // Repeater inputs
     const repeaters = form.querySelectorAll('.repeater-box');
     repeaters.forEach(box => {
         const key = box.id.replace('repeater-', '');
