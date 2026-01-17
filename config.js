@@ -1693,7 +1693,7 @@ export const specificFields = {
             type: 'textarea', 
             label: { en: 'Additional Notes', am: 'ተጨማሪ ማስታወሻ', ti: 'ተወሳኪ ሓበሬታ' } 
         }
-    ],
+    ]
 };
 
 // ... (Make sure you copied the whole specificFields object into here) ...
