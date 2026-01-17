@@ -110,6 +110,8 @@ export function loadForm(serviceId, cardElem) {
 }
 
 // --- FIELD RENDERER ---
+// ui.js - Updated renderFields
+
 export function renderFields(fieldList, parentElement = null) {
     const container = parentElement || document.getElementById('dynamic-inputs');
     
@@ -194,7 +196,6 @@ export function renderFields(fieldList, parentElement = null) {
              label.appendChild(cb);
              label.appendChild(document.createTextNode(field.label[state.currentLang] || field.label.en));
              
-             // Hide the main label we created earlier to avoid duplicates
              if(group.querySelector('label')) group.querySelector('label').style.display = 'none';
              
              input.appendChild(label);
@@ -225,11 +226,30 @@ export function renderFields(fieldList, parentElement = null) {
             if(field.required) input.required = true;
         } 
         else {
+            // STANDARD INPUTS
             input = document.createElement('input');
             input.type = field.type;
             input.name = field.name;
             input.id = uniqueId;
             if(field.required) input.required = true;
+
+            // --- NEW: INPUT MASKING (Phone & SIN) ---
+            if (field.name.includes('phone') || field.name.includes('contact')) {
+                input.placeholder = "(555) 555-5555";
+                input.maxLength = 14;
+                input.addEventListener('input', (e) => {
+                    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+                    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+                });
+            }
+            else if (field.name.includes('sin') || field.name.includes('social')) {
+                input.placeholder = "999-999-999";
+                input.maxLength = 11;
+                input.addEventListener('input', (e) => {
+                    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})/);
+                    e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
+                });
+            }
         }
 
         if(field.type !== 'checkbox' && field.type !== 'checkbox_group' && field.placeholder) {
@@ -240,7 +260,6 @@ export function renderFields(fieldList, parentElement = null) {
         container.appendChild(group);
     });
 }
-
 // --- LANGUAGE SWITCHER UI ---
 export function updateLanguageUI(lang) {
     setLanguage(lang); 
