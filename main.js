@@ -5,7 +5,8 @@ import { specificFields } from './config.js';
 import { createToastContainer, showToast, renderGrid, updateFileCount, updateLanguageUI, renderFields, addRepeaterRow, showReviewModal } from './ui.js';
 
 // --- CONSTANTS ---
-const ENGLISH_REGEX = /^[A-Za-z0-9\s.,'()-]*$/; // Allows letters, numbers, and basic punctuation
+// FIXED: Added # and / to allow addresses like "Apt #101" or "1/2 Main St"
+const ENGLISH_REGEX = /^[A-Za-z0-9\s.,'()\-#\/]*$/; 
 
 // --- INITIALIZATION ---
 window.addEventListener('DOMContentLoaded', () => {
@@ -33,7 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
         fileInput.addEventListener('change', updateFileCount);
     }
 
-    // 3. Submit Button Listener (UPDATED FOR REVIEW MODAL)
+    // 3. Submit Button Listener
     const form = document.getElementById('main-form');
     if(form) {
         form.addEventListener('submit', (e) => {
@@ -69,7 +70,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const lang = e.target.dataset.lang;
-            setLanguage(lang); // Update state, which triggers the subscriber above
+            setLanguage(lang); 
         });
     });
     
@@ -77,10 +78,15 @@ window.addEventListener('DOMContentLoaded', () => {
     const backBtn = document.getElementById('back-btn');
     if(backBtn) {
         backBtn.addEventListener('click', () => {
+            // Hide Form
             document.getElementById('form-container').classList.add('hidden');
-            document.getElementById('service-grid').classList.remove('hidden');
-            document.getElementById('select-title').classList.remove('hidden');
+            
+            // Show Home Elements
+            document.getElementById('main-menu').classList.remove('hidden');
             document.getElementById('hero-section').classList.remove('hidden');
+            document.getElementById('services-section').classList.add('hidden'); // Ensure services grid is hidden if we used menu
+            
+            // Reset Scroll
             window.scrollTo(0,0);
         });
     }
@@ -109,12 +115,11 @@ function collectFormData() {
          }
     });
 
-    // 2. Repeater Inputs (Simplified for Review Summary)
+    // 2. Repeater Inputs
     const repeaters = form.querySelectorAll('.repeater-box');
     repeaters.forEach(box => {
         const sectionName = box.id.replace('repeater-', '');
         const rows = box.querySelectorAll('.repeater-row');
-        // Just count entries for the review summary to keep it clean
         if(rows.length > 0) {
             data[sectionName] = `${rows.length} Entries Provided`;
         }
@@ -142,6 +147,7 @@ async function submitToFirebase() {
         const uploadedFileUrls = [];
         
         if (fileInput && fileInput.files.length > 0) {
+            showToast("Uploading files...", "success"); // Feedback to user
             for (const file of fileInput.files) {
                 const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
                 const snapshot = await uploadBytes(storageRef, file);
@@ -199,21 +205,14 @@ async function submitToFirebase() {
         
         // 4. Cleanup
         localStorage.removeItem(`draft_${state.currentService}`);
-        showToast("Application submitted successfully!");
         
-        setTimeout(() => {
-            alert(`✅ APPLICATION SUCCESSFUL\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease take a screenshot.`);
-            location.reload();
-        }, 500);
+        // Success Message
+        alert(`✅ APPLICATION SUBMITTED!\n\nYour Tracking ID is:\n${docRef.id}\n\nPlease take a screenshot.`);
+        location.reload();
 
     } catch(err) {
         console.error("Submission Error:", err);
         showToast("Error: " + err.message, "error");
-        
-        // Reset the button in UI via callback or reload, 
-        // effectively handled by the user trying again or reloading.
-        // But let's manually reset the modal button if possible, 
-        // though the modal is already closed by ui.js logic.
     }
 }
 
@@ -231,15 +230,25 @@ function validateForm() {
         input.classList.remove('error');
         
         // 1. Check Required
-        if(input.hasAttribute('required') && !input.value.trim()) {
-            input.classList.add('error');
-            isValid = false;
-            if(!firstError) firstError = input;
+        if(input.hasAttribute('required')) {
+            // FIXED: Special check for checkboxes
+            if(input.type === 'checkbox') {
+                if(!input.checked) {
+                    input.classList.add('error');
+                    isValid = false;
+                    if(!firstError) firstError = input;
+                }
+            } else if (!input.value.trim()) {
+                input.classList.add('error');
+                isValid = false;
+                if(!firstError) firstError = input;
+            }
         }
 
         // 2. Check English Only (if it's a text input)
-        if (input.type === 'text' || input.tagName === 'TEXTAREA') {
-            if (input.value.trim() && !ENGLISH_REGEX.test(input.value)) {
+        // Skip validation for Emails and Dates
+        if ((input.type === 'text' || input.tagName === 'TEXTAREA') && input.value.trim()) {
+            if (!ENGLISH_REGEX.test(input.value)) {
                 input.classList.add('error');
                 showToast("Please use English letters only.", "error");
                 isValid = false;
