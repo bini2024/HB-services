@@ -10,7 +10,16 @@ export const services = [
     { id: 'sin_card', icon: '🔢', labels: { en: 'SIN Number', am: 'የSIN ቁጥር', ti: 'ናይ SIN ቁጽሪ' } },
     { id: 'ei_benefit', icon: '💼', labels: { en: 'Employment Insurance', am: 'የስራ አጥነት(EI)', ti: 'ናይ ስራሕ ኢንሹራንስ(EI)' } },
     { id: 'oas', icon: '👵', labels: { en: 'Old Age Security', am: 'የጡረታ', ti: 'ናይ ጡረታ' } },
-    { id: 'lost_passport', icon: '❌', labels: { en: 'Lost/Stolen Passport', am: 'የጠፋ ፓስፖርት', ti: 'ዝጠፍአ ፓስፖርት' } }
+    { id: 'lost_passport', icon: '❌', labels: { en: 'Lost/Stolen Passport', am: 'የጠፋ ፓስፖርት', ti: 'ዝጠፍአ ፓስፖርት' } },
+    { 
+        id: 'air_ticket', 
+        icon: '✈️', 
+        labels: { 
+            en: 'Air Ticket Booking', 
+            am: 'የኣየር ትኬት', 
+            ti: 'ኣየር ቲኬት ምቁራጽ' 
+        } 
+    }
 ];
 
 // PASTE YOUR FULL specificFields OBJECT HERE. 
@@ -726,6 +735,78 @@ export const specificFields = {
         { name: 'date_entered_canada', type: 'date', label: { en: 'Date Entered Canada', am: 'ካናዳ የገቡበት ቀን', ti: 'ናብ ካናዳ ዝኣተውሉ ዕለት' } },
         { name: 'marital_status', type: 'select', options: ['Married', 'Single', 'Widowed', 'Divorced'], label: { en: 'Marital Status', am: 'የጋብቻ ሁኔታ', ti: 'ኩነታት መውስቦ' } },
         { name: 'spouse_sin', type: 'text', label: { en: 'Spouse SIN (If applicable)', am: 'የባለቤት SIN (ካለ)', ti: 'ናይ መጻምድቲ SIN (እንተልዩ)' } }
+    ],
+
+    'air_ticket': [
+        // ===============================
+        // SECTION 1: FLIGHT DETAILS
+        // ===============================
+        { 
+            name: 'trip_type', 
+            type: 'select', 
+            required: true, 
+            options: ['Round Trip', 'One Way'], 
+            label: { en: 'Trip Type', am: 'የጉዞ ዓይነት', ti: 'ዓይነት ጉዕዞ' } 
+        },
+        { 
+            name: 'departure_city', 
+            type: 'text', 
+            required: true, 
+            label: { en: 'Departure City', am: 'መነሻ ከተማ', ti: 'መበገሲ ከተማ' } 
+        },
+        { 
+            name: 'destination_city', 
+            type: 'text', 
+            required: true, 
+            label: { en: 'Destination City', am: 'መድረሻ ከተማ', ti: 'መዕለቢ ከተማ' } 
+        },
+        { 
+            name: 'departure_date', 
+            type: 'date', 
+            required: true, 
+            label: { en: 'Departure Date', am: 'የሚሄዱበት ቀን', ti: 'ዝብገሱሉ ዕለት' } 
+        },
+        { 
+            name: 'return_date', 
+            type: 'date', 
+            label: { en: 'Return Date (If Round Trip)', am: 'የሚመለሱበት ቀን (ደርሶ መልስ ከሆነ)', ti: 'ዝምለሱሉ ዕለት (ምምላስ እንተኾይኑ)' } 
+        },
+
+        // ===============================
+        // SECTION 2: PASSENGERS
+        // ===============================
+        { 
+            name: 'travelers_list', 
+            type: 'repeater', 
+            label: { en: 'Traveler Details (Add all passengers)', am: 'የመንገደኞች ዝርዝር', ti: 'ዝርዝር ተጓዓዝቲ' },
+            fields: [
+                { name: 'full_name', type: 'text', label: { en: 'Full Name (As per Passport)', am: 'ሙሉ ስም (እንደ ፓስፖርቱ)', ti: 'ሙሉእ ስም (ከምቲ ፓስፖርት)' } },
+                { name: 'dob', type: 'date', label: { en: 'Date of Birth', am: 'የትውልድ ቀን', ti: 'ዕለት ልደት' } }
+            ]
+        },
+
+        // ===============================
+        // SECTION 3: PREFERENCES
+        // ===============================
+        { 
+            name: 'airline_preference', 
+            type: 'text', 
+            label: { en: 'Preferred Airline (Optional)', am: 'የሚመርጡት አየር መንገድ (ካለ)', ti: 'ትመርጽዎ መንገዲ ኣየር (እንተልዩ)' } 
+        },
+        { 
+            name: 'additionalInformation', 
+            type: 'textarea', 
+            label: { 
+                en: 'Additional Requests (e.g. Wheelchair, Meal)', 
+                am: 'ተጨማሪ ማብራሪያ (ለምሳሌ፡ ዊልቸር፣ ምግብ)', 
+                ti: 'ተወሳኪ ሓበሬታ (ንኣብነት፡ ዊልቸር፣ መግቢ)' 
+            }, 
+            placeholder: { 
+                en: 'Please provide any additional requests here...', 
+                am: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...', 
+                ti: 'እባክዎ ተጨማሪ መረጃዎትን እዚህ ያስገቡ...' 
+            } 
+        }
     ],
 
    'lost_passport': [
