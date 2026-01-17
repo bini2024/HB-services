@@ -16,6 +16,7 @@
             justify-content: center; 
             min-height: 100vh;
             padding: 20px;
+            background-color: #f9fbf9; /* Matches main theme */
         }
         .status-card { 
             background: white; 
@@ -38,6 +39,9 @@
         .back-link:hover { color: var(--primary); }
 
         .input-group input { text-align: center; font-size: 1.2rem; letter-spacing: 1px; }
+        
+        /* Privacy Mask */
+        .masked-data { letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -47,7 +51,7 @@
         <p>Enter your Tracking ID to check the status of your documents.</p>
         
         <div class="input-group">
-            <input type="text" id="track-id" placeholder="Paste Tracking ID Here..." autocomplete="off">
+            <input type="text" id="track-id" placeholder="Paste ID (e.g. 7f8a9...)" autocomplete="off">
         </div>
         
         <button id="btn-check" class="btn-submit">Check Status</button>
@@ -57,7 +61,7 @@
             <p id="res-service" style="margin: 5px 0 15px 0; font-weight:600; color: var(--text-dark);"></p>
             
             <div style="text-align:left; font-size:0.95rem; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                <strong>Applicant:</strong> <span id="res-name"></span><br>
+                <strong>Applicant:</strong> <span id="res-name" class="masked-data"></span><br>
                 <strong>Submitted:</strong> <span id="res-date"></span><br>
             </div>
             
@@ -71,14 +75,9 @@
     </main>
 
     <script type="module">
-        // 1. Import from our centralized setup files
-        import { db, doc, getDoc } from './firebase-setup.js'; // Note: Ensure firebase-setup exports 'doc' and 'getDoc'
+        // 1. Import properly from your setup file
+        import { db, doc, getDoc } from './firebase-setup.js';
         import { services } from './config.js';
-
-        // NOTE: You need to update firebase-setup.js to export 'doc' and 'getDoc' 
-        // OR import them directly from Firestore SDK if you prefer not to touch setup.js.
-        // For simplicity, I will import them from SDK here to match your setup:
-        import { getFirestore, doc as docRef, getDoc as getDocSnap } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         document.getElementById('btn-check').addEventListener('click', checkStatus);
 
@@ -95,47 +94,53 @@
 
             // UI Loading State
             const originalText = btn.innerText;
-            btn.innerHTML = `<span class="spinner"></span> Searching...`;
+            btn.innerHTML = `<span class="spinner">⏳</span> Searching...`;
             btn.disabled = true;
             resBox.classList.add('hidden');
 
             try {
-                // 2. Fetch Document
-                const d = docRef(db, "submissions", id);
-                const docSnap = await getDocSnap(d);
+                // 2. Fetch Document using the imported 'doc' and 'getDoc'
+                const docRef = doc(db, "submissions", id);
+                const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // 3. Dynamic Service Name (from config.js)
+                    // 3. Dynamic Service Name
                     const serviceObj = services.find(s => s.id === data.service);
-                    // Default to English label, fallback to ID
                     const niceName = serviceObj ? serviceObj.labels.en : data.service;
-                    
                     document.getElementById('res-service').innerText = niceName;
 
-                    // 4. Privacy Masking
-                    // Tries to find ANY name field
-                    let rawName = data.data.full_name || data.data.surname || data.data.groom_name || data.data.applicant_name || data.data.uci_number || 'Unknown';
+                    // 4. Smart Name Finder & Privacy Masking
+                    // We check common name fields from your config.js
+                    let rawName = data.data.full_name || 
+                                  data.data.surname || 
+                                  data.data.groom_name || 
+                                  data.data.applicant_name || 
+                                  data.data.uci_number || 
+                                  'Unknown Applicant';
                     
-                    // Masking Logic: "John Doe" -> "J*** D**"
+                    // Masking: "Abel Tesfaye" -> "A*** T******"
                     const maskedName = rawName.split(' ').map(n => n.length > 1 ? n[0] + '*'.repeat(n.length-1) : n).join(' ');
-                    
                     document.getElementById('res-name').innerText = maskedName;
                     
                     // 5. Date Formatting
                     let dateStr = "Pending";
                     if(data.submittedAt) {
                         dateStr = new Date(data.submittedAt.seconds * 1000).toLocaleDateString('en-CA', {
-                            year: 'numeric', month: 'long', day: 'numeric'
+                            year: 'numeric', month: 'short', day: 'numeric'
                         });
                     }
                     document.getElementById('res-date').innerText = dateStr;
 
                     // 6. Status Badge
+                    const status = data.status || 'new';
                     const statusSpan = document.getElementById('res-status');
-                    statusSpan.innerText = (data.status || 'New').replace(/_/g, ' ');
-                    statusSpan.className = `status-badge status-${data.status || 'new'}`;
+                    statusSpan.innerText = status.replace(/_/g, ' ').toUpperCase();
+                    
+                    // Reset classes and add new one
+                    statusSpan.className = 'status-badge'; 
+                    statusSpan.classList.add(`status-${status}`);
 
                     resBox.classList.remove('hidden');
                 } else {
@@ -144,7 +149,7 @@
             } catch (error) {
                 console.error("Status Check Error:", error);
                 if(error.code === 'permission-denied') {
-                    alert("Access Denied. The database rules do not allow reading this document.");
+                    alert("⚠️ Access Denied.\nPlease update your Firebase Security Rules to allow 'get' operations.");
                 } else {
                     alert("Connection Error. Please check your internet.");
                 }
