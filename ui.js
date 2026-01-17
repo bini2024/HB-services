@@ -309,3 +309,29 @@ export function showInstructionModal(onConfirm) {
         if (onConfirm) onConfirm();
     };
 }
+
+// --- MISSING REPEATER FUNCTION ---
+export function addRepeaterRow(container, fields) {
+    const row = document.createElement('div');
+    row.className = 'repeater-row';
+    
+    // Use the existing renderFields function to fill this row
+    renderFields(fields, row);
+    
+    const delBtn = document.createElement('button');
+    delBtn.innerText = "Remove / አጥፋ";
+    delBtn.className = 'btn-danger small';
+    delBtn.type = 'button';
+    delBtn.style.marginTop = "10px";
+    delBtn.onclick = () => {
+        // Confirmation before deleting data
+        if(row.querySelector('input').value !== "") {
+            if(confirm("Remove this entry?")) row.remove();
+        } else {
+            row.remove();
+        }
+    };
+    
+    row.appendChild(delBtn);
+    container.appendChild(row);
+}
