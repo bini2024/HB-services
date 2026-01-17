@@ -158,6 +158,7 @@
     let selectedId = null;
 
     // --- AUTHENTICATION ---
+    // Make functions available globally for HTML buttons
     window.handleLogin = async () => {
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
@@ -192,6 +193,7 @@
         const loadMsg = document.getElementById('loading-msg');
         
         try {
+            // This query requires the security rule 'allow list'
             const q = query(collection(db, "submissions"), orderBy("submittedAt", "desc"));
             const querySnapshot = await getDocs(q);
             
@@ -249,7 +251,7 @@
         } catch (error) {
             console.error("Error loading data:", error);
             if(error.code === 'permission-denied') {
-                alert("Permission Denied: Check Firestore Rules!");
+                alert("Permission Denied: Ensure you are logged in with the correct Admin Email.");
             }
         }
     }
