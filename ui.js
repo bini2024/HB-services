@@ -1,6 +1,5 @@
 // ui.js
 import { state, setLanguage, setService } from './state.js';
-// We assume you have a config.js with your service list. If not, I can provide it.
 import { services, specificFields } from './config.js'; 
 
 // --- TOAST NOTIFICATIONS ---
@@ -9,7 +8,7 @@ export function createToastContainer() {
     
     const div = document.createElement('div');
     div.id = 'toast-container';
-    div.className = 'toast-container'; // Ensure class matches CSS
+    div.className = 'toast-container'; 
     document.body.appendChild(div);
 }
 
@@ -20,7 +19,6 @@ export function showToast(msg, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
-    // Icons
     const icon = type === 'success' ? '✅' : '⚠️';
     const title = type === 'success' ? 'Success' : 'Attention';
     
@@ -34,15 +32,13 @@ export function showToast(msg, type = 'success') {
     
     container.appendChild(toast);
     
-    // Animation: Slide In
     requestAnimationFrame(() => {
         setTimeout(() => toast.classList.add('show'), 10);
     });
 
-    // Auto Remove: 4 Seconds
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400); // Wait for slide-out animation
+        setTimeout(() => toast.remove(), 400); 
     }, 4000);
 }
 
@@ -51,7 +47,7 @@ export function renderGrid() {
     const grid = document.getElementById('service-grid');
     if(!grid) return;
     
-    grid.innerHTML = ''; // Clear loading spinner
+    grid.innerHTML = ''; 
     
     if (!services || services.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No services available.</p>';
@@ -64,9 +60,7 @@ export function renderGrid() {
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
         
-        // CLICK ACTION
         const activate = () => {
-            // Show Instruction Modal before loading form
             showInstructionModal(() => {
                 loadForm(s.id, div);
             });
@@ -87,7 +81,7 @@ export function renderGrid() {
 export function loadForm(serviceId, cardElem) {
     setService(serviceId);
 
-    // 1. Hide All Other Sections (Critical for new Menu Layout)
+    // 1. Hide All Other Sections
     document.getElementById('main-menu').classList.add('hidden');
     document.getElementById('hero-section').classList.add('hidden');
     document.getElementById('services-section').classList.add('hidden');
@@ -98,19 +92,16 @@ export function loadForm(serviceId, cardElem) {
     const dynamicInputs = document.getElementById('dynamic-inputs');
     formContainer.classList.remove('hidden');
     
-    // Scroll to top for mobile users
     window.scrollTo(0, 0);
 
     // 3. Render Fields
     dynamicInputs.innerHTML = ''; 
     
-    // Add "Service Details" Header
     const sectionTitle = document.createElement('div');
     sectionTitle.className = 'form-section-title';
     sectionTitle.innerText = getLabel('details');
     dynamicInputs.appendChild(sectionTitle);
 
-    // Render Specific Questions
     if(specificFields[serviceId]) {
         renderFields(specificFields[serviceId]);
     } else {
@@ -128,13 +119,12 @@ export function renderFields(fieldList, parentElement = null) {
         
         const uniqueId = field.id || `field_${field.name}_${Math.random().toString(36).substr(2, 9)}`;
 
-        // 1. Label
+        // Label
         if (field.label) {
             const lbl = document.createElement('label');
             const langLabel = field.label[state.currentLang] || field.label.en;
             lbl.innerText = langLabel;
             
-            // Store translations for live switching
             lbl.dataset.en = field.label.en;
             lbl.dataset.am = field.label.am;
             lbl.dataset.ti = field.label.ti;
@@ -142,11 +132,74 @@ export function renderFields(fieldList, parentElement = null) {
             group.appendChild(lbl);
         }
 
-        // 2. Input Types
+        // Input Types
         let input;
 
-        // Type: SELECT
-        if (field.type === 'select') {
+        if (field.type === 'repeater') {
+            const repeaterBox = document.createElement('div');
+            repeaterBox.className = 'repeater-box';
+            repeaterBox.id = `repeater-${field.name}`;
+            
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'btn-secondary small'; 
+            addBtn.innerText = '+ Add Entry';
+            addBtn.style.marginTop = "10px";
+            addBtn.onclick = () => addRepeaterRow(repeaterBox, field.fields);
+            
+            addRepeaterRow(repeaterBox, field.fields);
+            
+            group.appendChild(repeaterBox);
+            group.appendChild(addBtn);
+            container.appendChild(group);
+            return; 
+        }
+        else if (field.type === 'checkbox_group') {
+            input = document.createElement('div');
+            field.options.forEach(opt => {
+                const optLabel = document.createElement('label');
+                optLabel.style.display = 'inline-flex'; 
+                optLabel.style.alignItems = 'center';
+                optLabel.style.marginRight = '15px';
+                optLabel.style.fontWeight = 'normal';
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.name = field.name;
+                cb.value = opt;
+                cb.style.width = 'auto'; 
+                cb.style.marginRight = '8px';
+
+                optLabel.appendChild(cb);
+                optLabel.appendChild(document.createTextNode(opt));
+                input.appendChild(optLabel);
+            });
+        } 
+        else if (field.type === 'checkbox') {
+             input = document.createElement('div');
+             const label = document.createElement('label');
+             label.style.fontWeight = 'normal';
+             label.style.display = 'flex';
+             label.style.alignItems = 'center';
+
+             const cb = document.createElement('input');
+             cb.type = 'checkbox';
+             cb.name = field.name;
+             cb.value = "Yes";
+             cb.id = uniqueId;
+             cb.style.width = 'auto';
+             cb.style.marginRight = '10px';
+             if(field.required) cb.required = true;
+
+             label.appendChild(cb);
+             label.appendChild(document.createTextNode(field.label[state.currentLang] || field.label.en));
+             
+             // Hide the main label we created earlier to avoid duplicates
+             if(group.querySelector('label')) group.querySelector('label').style.display = 'none';
+             
+             input.appendChild(label);
+        } 
+        else if (field.type === 'select') {
             input = document.createElement('select');
             input.name = field.name;
             input.id = uniqueId;
@@ -164,7 +217,6 @@ export function renderFields(fieldList, parentElement = null) {
                 input.appendChild(o);
             });
         } 
-        // Type: TEXTAREA
         else if (field.type === 'textarea') {
             input = document.createElement('textarea');
             input.rows = 4;
@@ -172,7 +224,6 @@ export function renderFields(fieldList, parentElement = null) {
             input.id = uniqueId;
             if(field.required) input.required = true;
         } 
-        // Type: STANDARD INPUT (text, date, number, tel)
         else {
             input = document.createElement('input');
             input.type = field.type;
@@ -181,8 +232,7 @@ export function renderFields(fieldList, parentElement = null) {
             if(field.required) input.required = true;
         }
 
-        // Placeholder logic
-        if(field.placeholder) {
+        if(field.type !== 'checkbox' && field.type !== 'checkbox_group' && field.placeholder) {
             input.placeholder = field.placeholder[state.currentLang] || "";
         }
         
@@ -193,26 +243,22 @@ export function renderFields(fieldList, parentElement = null) {
 
 // --- LANGUAGE SWITCHER UI ---
 export function updateLanguageUI(lang) {
-    setLanguage(lang); // Update State
+    setLanguage(lang); 
 
-    // Highlight active button
     document.querySelectorAll('.lang-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.lang === lang);
     });
 
-    // Update Service Card Titles
     document.querySelectorAll('.card-title').forEach(el => {
         const sid = el.dataset.sid;
         const service = services.find(s => s.id === sid);
         if(service) el.innerText = service.labels[lang];
     });
 
-    // Update Form Labels
     document.querySelectorAll('label').forEach(lbl => {
         if(lbl.dataset[lang]) lbl.innerText = lbl.dataset[lang];
     });
     
-    // Static Text Replacements
     const texts = {
         en: { 
             heroT: "Welcome to HB Services", 
@@ -245,7 +291,6 @@ export function updateLanguageUI(lang) {
         setText('hero-title', t.heroT);
         setText('hero-subtitle', t.heroS);
         
-        // Menu Buttons
         setText('menu-start-title', t.startT); setText('menu-start-desc', t.startD);
         setText('menu-status-title', t.statusT); setText('menu-status-desc', t.statusD);
         setText('menu-docs-title', t.docsT); setText('menu-docs-desc', t.docsD);
@@ -258,13 +303,11 @@ export function updateLanguageUI(lang) {
     }
 }
 
-// --- HELPER: Safely Set Text ---
 function setText(id, text) {
     const el = document.getElementById(id);
     if(el) el.innerText = text;
 }
 
-// --- HELPER: Get Section Title ---
 function getLabel(key) {
     const dict = { details: { en: "Service Details", am: "ዝርዝር መረጃ", ti: "ዝርዝር ሓበሬታ" } };
     return dict[key] ? dict[key][state.currentLang] : "";
@@ -272,12 +315,6 @@ function getLabel(key) {
 
 // --- INSTRUCTION MODAL ---
 export function showInstructionModal(onConfirm) {
-    const modal = document.getElementById('instructions-section'); // We reuse the section or modal logic
-    // NOTE: In your HTML, you don't have a modal div for instructions yet, 
-    // but you DO have <div id="instructions-section">. 
-    // Since the flow is Click Service -> Show Modal -> Show Form, let's inject a modal dynamically.
-    
-    // Create Modal if not exists
     let modalOverlay = document.getElementById('dynamic-instr-modal');
     if (!modalOverlay) {
         modalOverlay = document.createElement('div');
@@ -298,11 +335,9 @@ export function showInstructionModal(onConfirm) {
         document.body.appendChild(modalOverlay);
     }
     
-    // Show it
     modalOverlay.classList.remove('hidden');
-    modalOverlay.style.display = 'flex'; // Force flex
+    modalOverlay.style.display = 'flex'; 
 
-    // Handle Click
     const btn = modalOverlay.querySelector('#btn-modal-confirm');
     btn.onclick = () => {
         modalOverlay.style.display = 'none';
@@ -310,7 +345,83 @@ export function showInstructionModal(onConfirm) {
     };
 }
 
-// --- MISSING REPEATER FUNCTION ---
+// --- RESTORED: REVIEW MODAL (This was missing) ---
+export function showReviewModal(formData, onConfirm) {
+    // 1. Check if Review Modal HTML exists (it should be in index.html)
+    // If not, we can generate it dynamically like the instruction modal
+    let modal = document.getElementById('review-modal');
+    
+    // Safety: Generate modal if missing from HTML
+    if (!modal) {
+        const div = document.createElement('div');
+        div.id = 'review-modal';
+        div.className = 'modal-overlay hidden';
+        div.innerHTML = `
+            <div class="modal-card wide">
+                <h3>Review Your Application / ማመልከቻዎን ይገምግሙ</h3>
+                <p class="sub-text">Please review your details below. Click "Edit" to make changes or "Confirm" to submit.</p>
+                <div id="review-content" class="review-scroll-area"></div>
+                <div class="modal-actions">
+                    <button id="btn-edit" class="btn-secondary">← Edit / ኣስተኻኽል</button>
+                    <button id="btn-confirm-submit" class="btn-submit">Confirm & Submit / አረጋግጽ</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(div);
+        modal = div;
+    }
+
+    const content = document.getElementById('review-content');
+    const btnConfirm = document.getElementById('btn-confirm-submit');
+    const btnEdit = document.getElementById('btn-edit');
+
+    // 2. Generate Review HTML
+    let html = '';
+    for (const [key, value] of Object.entries(formData.data)) {
+        if (typeof value !== 'object' && value) {
+            const label = key.replace(/_/g, ' ').toUpperCase();
+            html += `<div class="review-item">
+                        <span class="review-label">${label}</span>
+                        <span class="review-value">${value}</span>
+                     </div>`;
+        }
+    }
+    content.innerHTML = html;
+    
+    // 3. Show Modal
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+
+    // 4. Edit Action
+    btnEdit.onclick = () => {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    };
+
+    // 5. Confirm Action
+    // Clone to remove old listeners
+    const newBtn = btnConfirm.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
+    
+    newBtn.onclick = () => {
+        newBtn.innerHTML = '<span class="spinner">⏳</span> Submitting...';
+        newBtn.disabled = true;
+        
+        onConfirm(); 
+        
+        // Modal closes after submitToFirebase handles the success/alert
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+        
+        // Reset button state (in case of error)
+        setTimeout(() => {
+            newBtn.innerHTML = 'Confirm & Submit / አረጋግጽ';
+            newBtn.disabled = false;
+        }, 3000);
+    };
+}
+
+// --- RESTORED: REPEATER ROW FUNCTION (This was missing) ---
 export function addRepeaterRow(container, fields) {
     const row = document.createElement('div');
     row.className = 'repeater-row';
