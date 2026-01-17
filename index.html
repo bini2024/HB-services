@@ -1,125 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="HB Services Canada - Professional assistance for Passports, Travel Docs, and Citizenship applications.">
-    <title>HB Services Canada</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
-    
-    <meta property="og:title" content="HB Services Canada - Application Portal">
-    <meta property="og:description" content="Securely submit your documents for Passports, Travel Docs, and Citizenship.">
-    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg">
-    <meta property="og:url" content="https://hb-services-87372.web.app">
-    <meta name="theme-color" content="#28a745">
-</head>
-<body>
-
-<header>
-    <div class="logo">HB Services</div>
-    
-    <a href="status.html" class="status-btn">
-        Check Status / ወረቀትካ መከታተሊ
-    </a>
-
-    <div class="lang-switch">
-        <button class="lang-btn active" data-lang="en" aria-label="Switch to English">EN</button>
-        <button class="lang-btn" data-lang="am" aria-label="Switch to Amharic">አማ</button>
-        <button class="lang-btn" data-lang="ti" aria-label="Switch to Tigrinya">ትግ</button>
-    </div>
-</header>
-
 <div class="container">
-    <div class="alert" id="general-warning">
-        <span class="icon">⚠️</span> 
-        <div>
-            <strong>Important:</strong> Please fill the form inputs using <strong>English Letters</strong> only.
-            <div class="sub-text">(መግለጫ፡ እባክዎን ቅጹን በእንግሊዝኛ ፊደላት ብቻ ይሙሉ / በጃኹም ነቲ ፎርም ብ ናይ እንግሊዝኛ ፊደላት ጥራይ ምልእዎ)</div>
+    <div class="hero" id="hero-section">
+        <h1 id="hero-title">Welcome to HB Services</h1>
+        <p id="hero-subtitle">How can we help you today?</p>
+    </div>
+
+    <div id="main-menu" class="main-menu-grid">
+        
+        <div class="menu-card" onclick="showSection('services')">
+            <div class="menu-icon">🚀</div>
+            <h3>Start Application</h3>
+            <p>Passport, Visa, Citizenship</p>
+        </div>
+
+        <div class="menu-card" onclick="window.location.href='status.html'">
+            <div class="menu-icon">🔍</div>
+            <h3>Check Status</h3>
+            <p>Track your file</p>
+        </div>
+
+        <div class="menu-card" onclick="showSection('instructions')">
+            <div class="menu-icon">📋</div>
+            <h3>Documents & Info</h3>
+            <p>Requirements & Guides</p>
         </div>
     </div>
 
-    <div class="hero" id="hero-section">
-        <h1 id="hero-title">Welcome to HB Services</h1>
-        <p id="hero-subtitle">Professional assistance for all your documentation needs.</p>
+    <div id="services-section" class="hidden">
+        <button class="back-link" onclick="goHome()">← Back to Home</button>
+        <h3 class="section-label">Select Service</h3>
+        <div class="grid" id="service-grid">
+            <div class="loading-spinner">Loading Services...</div>
+        </div>
     </div>
 
-    <h3 class="section-label" id="select-title">Select Service</h3>
-    
-    <div class="grid" id="service-grid">
-        <div class="loading-spinner">Loading Services...</div>
+    <div id="instructions-section" class="hidden">
+        <button class="back-link" onclick="goHome()">← Back to Home</button>
+        <div class="info-card">
+            <h3>📝 Required Documents Guide</h3>
+            <ul class="doc-list">
+                <li><strong>Passport:</strong> Must be valid for at least 6 months.</li>
+                <li><strong>Photo:</strong> White background, no glasses.</li>
+                <li><strong>Scanning:</strong> Please use a scanner or clear photo.</li>
+            </ul>
+        </div>
     </div>
 
     <div id="form-container" class="hidden">
         <div class="form-header">
-            <button type="button" id="back-btn" class="back-btn">← Back</button>
+            <button type="button" id="back-btn" class="back-btn" onclick="showSection('services')">← Back</button>
             <h2 id="form-header-title">Application</h2>
         </div>
 
-        <form id="main-form">
+        <form id="main-form" novalidate autocomplete="off">
             <div id="dynamic-inputs"></div>
             
             <div class="form-section-title" id="lbl-docs">Documents</div>
             <div class="input-group">
                 <label id="lbl-upload">Upload ID / Supporting Docs</label>
-                
                 <div class="upload-box" id="upload-box-trigger" tabindex="0">
-                    <span id="upload-text">Click to Select Files</span>
-                    <input type="file" id="file-input" multiple style="display:none">
+                    <span class="icon">📂</span>
+                    <span id="upload-text">Click to Select Files (PDF, JPG)</span>
+                    <input type="file" id="file-input" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none">
                 </div>
-                <div class="helper-text" id="file-count">No files selected</div>
+                <ul id="file-list-preview" class="file-list"></ul>
             </div>
 
             <button type="submit" class="btn-submit" id="btn-submit">Submit Application</button>
         </form>
     </div>
 </div>
-
-<footer class="main-footer">
-    <p><strong>Privacy Notice:</strong> Your data is submitted securely and used solely for the purpose of processing your application.</p>
-    <p>By clicking Submit, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
-    <p><em>We are a private documentation service and not the Canadian Government.</em></p>
-</footer>
-
-<noscript>
-    <div class="alert error">
-        This website requires JavaScript to function. Please enable JavaScript in your browser settings.
-    </div>
-</noscript>
-
-<script type="module" src="main.js"></script>
-<div id="instruction-modal" class="modal-overlay hidden">
-    <div class="modal-card">
-        <h3>⚠️ Important Instructions / መምርሒ</h3>
-        <div class="modal-body">
-            <ul>
-                <li>Please fill all required fields carefully. <br> <small>በጃኹም ኩሉ ዘድሊ ቦታታት ብጥንቃቐ ምልእዎ።</small></li>
-                <li>Use <strong>English Letters</strong> only. <br> <small>ናይ እንግሊዝኛ ፊደላት ጥራይ ተጠቐሙ።</small></li>
-                <li>Ensure your attached documents are clear. <br> <small>ዝተተሓሓዙ ሰነዳት ንጹራት ምዃኖም አረጋግጹ።</small></li>
-                <li>You can save your progress and come back later. <br> <small>መስርሕኩም ዓቂብኩም (Save) ጸኒሕኩም ክትምለሱ ትኽእሉ ኢኹም።</small></li>
-            </ul>
-        </div>
-        <button id="btn-start-form" class="btn-submit">I Understand / ተረዲኡኒ ኣሎ</button>
-    </div>
-</div>
-
-<div id="review-modal" class="modal-overlay hidden">
-    <div class="modal-card wide">
-        <h3>Review Your Application / ማመልከቻዎን ይገምግሙ</h3>
-        <p class="sub-text">Please review your details below. Click "Edit" to make changes or "Confirm" to submit.</p>
-        
-        <div id="review-content" class="review-scroll-area">
-            </div>
-
-        <div class="modal-actions">
-            <button id="btn-edit" class="btn-secondary">← Edit / ኣስተኻኽል</button>
-            <button id="btn-confirm-submit" class="btn-submit">Confirm & Submit / አረጋግጽ</button>
-        </div>
-    </div>
-</div>
-</body>
-</html>
