@@ -1,6 +1,6 @@
 // state.js
 
-// 1. The State Object (Changed to EXPORT so ui.js can see it)
+// 1. The State Object
 export const state = {
     currentLang: 'en',
     currentService: null,
@@ -16,6 +16,11 @@ const listeners = [];
  */
 export function setService(id) {
     if (state.currentService === id) return;
+    
+    // Optional: Clear old form data when switching services
+    // Comment this out if you want to keep data across services
+    resetForm(); 
+
     state.currentService = id;
     notifyListeners();
 }
@@ -39,6 +44,24 @@ export function setLanguage(lang) {
     localStorage.setItem('hb_pref_lang', lang);
     
     notifyListeners();
+}
+
+/**
+ * Update a specific field in the form data
+ * @param {string} key - The input ID (e.g., 'full_name')
+ * @param {string|number} value - The user's input
+ */
+export function updateFormInput(key, value) {
+    state.formData[key] = value;
+    // We do NOT notify listeners here to prevent performance lag while typing
+}
+
+/**
+ * Clear form data
+ */
+export function resetForm() {
+    state.formData = {};
+    // We do not notify here because usually a setService() call follows immediately
 }
 
 /**
