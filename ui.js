@@ -1,7 +1,7 @@
 // ui.js
 import { state, setLanguage, setService } from './state.js';
-import { services, specificFields } from './config.js';
-import { restoreDraft } from './main.js'; 
+// We assume you have a config.js with your service list. If not, I can provide it.
+import { services, specificFields } from './config.js'; 
 
 // --- TOAST NOTIFICATIONS ---
 export function createToastContainer() {
@@ -9,6 +9,7 @@ export function createToastContainer() {
     
     const div = document.createElement('div');
     div.id = 'toast-container';
+    div.className = 'toast-container'; // Ensure class matches CSS
     document.body.appendChild(div);
 }
 
@@ -18,6 +19,8 @@ export function showToast(msg, type = 'success') {
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
+    
+    // Icons
     const icon = type === 'success' ? '✅' : '⚠️';
     const title = type === 'success' ? 'Success' : 'Attention';
     
@@ -31,25 +34,27 @@ export function showToast(msg, type = 'success') {
     
     container.appendChild(toast);
     
+    // Animation: Slide In
     requestAnimationFrame(() => {
         setTimeout(() => toast.classList.add('show'), 10);
     });
 
+    // Auto Remove: 4 Seconds
     setTimeout(() => {
         toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 400);
+        setTimeout(() => toast.remove(), 400); // Wait for slide-out animation
     }, 4000);
 }
 
-// --- GRID RENDERER ---
+// --- GRID RENDERER (For the Services Page) ---
 export function renderGrid() {
     const grid = document.getElementById('service-grid');
     if(!grid) return;
     
-    grid.innerHTML = '';
+    grid.innerHTML = ''; // Clear loading spinner
     
     if (!services || services.length === 0) {
-        grid.innerHTML = '<p class="text-center">No services available.</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No services available.</p>';
         return;
     }
 
@@ -58,10 +63,10 @@ export function renderGrid() {
         div.className = 'card';
         div.setAttribute('tabindex', '0');
         div.setAttribute('role', 'button');
-        div.setAttribute('aria-label', `Select ${s.labels.en}`);
-
-        // CLICK ACTION: Show Instructions First -> Then Load Form
+        
+        // CLICK ACTION
         const activate = () => {
+            // Show Instruction Modal before loading form
             showInstructionModal(() => {
                 loadForm(s.id, div);
             });
@@ -82,38 +87,35 @@ export function renderGrid() {
 export function loadForm(serviceId, cardElem) {
     setService(serviceId);
 
-    // UI Transitions
-    document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-    if(cardElem) cardElem.classList.add('active');
+    // 1. Hide All Other Sections (Critical for new Menu Layout)
+    document.getElementById('main-menu').classList.add('hidden');
+    document.getElementById('hero-section').classList.add('hidden');
+    document.getElementById('services-section').classList.add('hidden');
+    document.getElementById('instructions-section').classList.add('hidden');
 
-    const hero = document.getElementById('hero-section');
-    const grid = document.getElementById('service-grid');
-    const selectTitle = document.getElementById('select-title');
+    // 2. Show Form
     const formContainer = document.getElementById('form-container');
     const dynamicInputs = document.getElementById('dynamic-inputs');
-
-    if(hero) hero.classList.add('hidden');
-    if(grid) grid.classList.add('hidden');
-    if(selectTitle) selectTitle.classList.add('hidden');
-
     formContainer.classList.remove('hidden');
+    
+    // Scroll to top for mobile users
     window.scrollTo(0, 0);
 
-    // Render Fields
+    // 3. Render Fields
     dynamicInputs.innerHTML = ''; 
     
-    const div = document.createElement('div');
-    div.className = 'form-section-title';
-    div.innerText = getLabel('details');
-    dynamicInputs.appendChild(div);
+    // Add "Service Details" Header
+    const sectionTitle = document.createElement('div');
+    sectionTitle.className = 'form-section-title';
+    sectionTitle.innerText = getLabel('details');
+    dynamicInputs.appendChild(sectionTitle);
 
+    // Render Specific Questions
     if(specificFields[serviceId]) {
         renderFields(specificFields[serviceId]);
     } else {
-        dynamicInputs.innerHTML = '<p>Form configuration not found.</p>';
+        dynamicInputs.innerHTML += '<p>Form configuration not found.</p>';
     }
-
-    restoreDraft(serviceId);
 }
 
 // --- FIELD RENDERER ---
@@ -126,93 +128,25 @@ export function renderFields(fieldList, parentElement = null) {
         
         const uniqueId = field.id || `field_${field.name}_${Math.random().toString(36).substr(2, 9)}`;
 
-        // Label
-        const lbl = document.createElement('label');
-        if(field.label) {
-            lbl.innerText = field.label[state.currentLang] || field.label.en;
+        // 1. Label
+        if (field.label) {
+            const lbl = document.createElement('label');
+            const langLabel = field.label[state.currentLang] || field.label.en;
+            lbl.innerText = langLabel;
+            
+            // Store translations for live switching
             lbl.dataset.en = field.label.en;
             lbl.dataset.am = field.label.am;
             lbl.dataset.ti = field.label.ti;
             lbl.setAttribute('for', uniqueId);
-        }
-        group.appendChild(lbl);
-
-        // Repeater
-        if (field.type === 'repeater') {
-            const repeaterBox = document.createElement('div');
-            repeaterBox.className = 'repeater-box';
-            repeaterBox.id = `repeater-${field.name}`;
-            
-            const addBtn = document.createElement('button');
-            addBtn.type = 'button';
-            addBtn.className = 'btn-secondary small'; 
-            addBtn.innerText = '+ Add Entry';
-            addBtn.style.marginTop = "10px";
-            addBtn.onclick = () => addRepeaterRow(repeaterBox, field.fields);
-            
-            addRepeaterRow(repeaterBox, field.fields);
-            
-            group.appendChild(repeaterBox);
-            group.appendChild(addBtn);
-            container.appendChild(group);
-            return; 
+            group.appendChild(lbl);
         }
 
-        // Input Types
+        // 2. Input Types
         let input;
 
-        if (field.type === 'checkbox_group') {
-            input = document.createElement('div');
-            field.options.forEach(opt => {
-                const optLabel = document.createElement('label');
-                optLabel.style.display = 'inline-flex'; 
-                optLabel.style.alignItems = 'center';
-                optLabel.style.marginRight = '15px';
-                optLabel.style.fontWeight = 'normal';
-                
-                const cb = document.createElement('input');
-                cb.type = 'checkbox';
-                cb.name = field.name;
-                cb.value = opt;
-                cb.style.width = 'auto'; 
-                cb.style.marginRight = '8px';
-
-                optLabel.appendChild(cb);
-                optLabel.appendChild(document.createTextNode(opt));
-                input.appendChild(optLabel);
-            });
-        } 
-        else if (field.type === 'checkbox') {
-             input = document.createElement('div');
-             const label = document.createElement('label');
-             label.style.fontWeight = 'normal';
-             label.style.display = 'flex';
-             label.style.alignItems = 'center';
-
-             const cb = document.createElement('input');
-             cb.type = 'checkbox';
-             cb.name = field.name;
-             cb.value = "Yes";
-             cb.id = uniqueId;
-             cb.style.width = 'auto';
-             cb.style.marginRight = '10px';
-             if(field.required) cb.required = true;
-
-             label.appendChild(cb);
-             label.appendChild(document.createTextNode(field.label[state.currentLang] || field.label.en));
-             
-             if(group.querySelector('label')) group.querySelector('label').style.display = 'none';
-             
-             input.appendChild(label);
-        } 
-        else if (field.type === 'textarea') {
-            input = document.createElement('textarea');
-            input.rows = 4;
-            input.name = field.name;
-            input.id = uniqueId;
-            if(field.required) input.required = true;
-        } 
-        else if (field.type === 'select') {
+        // Type: SELECT
+        if (field.type === 'select') {
             input = document.createElement('select');
             input.name = field.name;
             input.id = uniqueId;
@@ -220,15 +154,25 @@ export function renderFields(fieldList, parentElement = null) {
             
             const def = document.createElement('option');
             def.value = ""; 
-            def.innerText = "Select...";
+            def.innerText = "Select... / ምረጡ...";
             input.appendChild(def);
             
             field.options.forEach(opt => {
                 const o = document.createElement('option');
-                o.value = opt; o.innerText = opt;
+                o.value = opt; 
+                o.innerText = opt;
                 input.appendChild(o);
             });
         } 
+        // Type: TEXTAREA
+        else if (field.type === 'textarea') {
+            input = document.createElement('textarea');
+            input.rows = 4;
+            input.name = field.name;
+            input.id = uniqueId;
+            if(field.required) input.required = true;
+        } 
+        // Type: STANDARD INPUT (text, date, number, tel)
         else {
             input = document.createElement('input');
             input.type = field.type;
@@ -237,7 +181,8 @@ export function renderFields(fieldList, parentElement = null) {
             if(field.required) input.required = true;
         }
 
-        if(field.type !== 'checkbox' && field.type !== 'checkbox_group' && field.placeholder) {
+        // Placeholder logic
+        if(field.placeholder) {
             input.placeholder = field.placeholder[state.currentLang] || "";
         }
         
@@ -246,64 +191,65 @@ export function renderFields(fieldList, parentElement = null) {
     });
 }
 
-// --- REPEATER ROW LOGIC ---
-export function addRepeaterRow(container, fields) {
-    const row = document.createElement('div');
-    row.className = 'repeater-row';
-    
-    renderFields(fields, row);
-    
-    const delBtn = document.createElement('button');
-    delBtn.innerText = "Remove / አጥፋ";
-    delBtn.className = 'btn-danger small';
-    delBtn.type = 'button';
-    delBtn.style.marginTop = "10px";
-    delBtn.onclick = () => {
-        if(row.querySelector('input').value !== "") {
-            if(confirm("Remove this entry?")) row.remove();
-        } else {
-            row.remove();
-        }
-    };
-    
-    row.appendChild(delBtn);
-    container.appendChild(row);
-}
-
-export function updateFileCount() {
-    const input = document.getElementById('file-input');
-    const count = input.files.length;
-    document.getElementById('file-count').innerText = count > 0 ? `${count} file(s) selected` : "No files selected";
-}
-
-// --- LANGUAGE SWITCHER ---
+// --- LANGUAGE SWITCHER UI ---
 export function updateLanguageUI(lang) {
-    setLanguage(lang);
+    setLanguage(lang); // Update State
 
+    // Highlight active button
     document.querySelectorAll('.lang-btn').forEach(b => {
         b.classList.toggle('active', b.dataset.lang === lang);
     });
 
+    // Update Service Card Titles
     document.querySelectorAll('.card-title').forEach(el => {
         const sid = el.dataset.sid;
         const service = services.find(s => s.id === sid);
         if(service) el.innerText = service.labels[lang];
     });
 
+    // Update Form Labels
     document.querySelectorAll('label').forEach(lbl => {
         if(lbl.dataset[lang]) lbl.innerText = lbl.dataset[lang];
     });
     
+    // Static Text Replacements
     const texts = {
-        en: { heroT: "Welcome to HB Services", heroS: "Professional assistance for all your documentation needs.", select: "Select Service", app: "Application", docs: "Documents", upload: "Upload ID / Documents", btn: "Submit Application" },
-        am: { heroT: "ወደ HB ሰርቪስ እንኳን በደህና መጡ", heroS: "ለሁሉም ዓይነት የሰነድ ጉዳዮችዎ ሙያዊ እገዛ እናደርጋለን።", select: "አገልግሎት ይምረጡ", app: "ማመልከቻ", docs: "ሰነዶች", upload: "መታወቂያ/ሰነድ ያስገቡ", btn: "ማመልከቻውን ላክ" },
-        ti: { heroT: "እንቋዕ ናብ HB ሰርቪስ ብሰላም መጻእኩም", heroS: "ንኩሉ ዓይነት ናይ ዶኩመንት ጉዳያትኩም ሞያዊ ሓገዝ ንገብር።", select: "ኣገልግሎት ምረጹ", app: "መመልከቲ", docs: "ሰነዳት", upload: "መታወቒ/ሰነድ ኣእትዉ", btn: "መመልከቲ ስደዱ" }
+        en: { 
+            heroT: "Welcome to HB Services", 
+            heroS: "How can we help you today?", 
+            startT: "Start Application", startD: "Passport, Visa, Citizenship",
+            statusT: "Check Status", statusD: "Track your file",
+            docsT: "Documents & Info", docsD: "Requirements & Guides",
+            select: "Select Service", app: "Application", docs: "Documents", upload: "Upload ID / Documents", btn: "Submit Application" 
+        },
+        am: { 
+            heroT: "ወደ HB ሰርቪስ እንኳን በደህና መጡ", 
+            heroS: "ዛሬ ምን ልንርዳዎ?", 
+            startT: "አዲስ ማመልከቻ", startD: "ፓስፖርት ፣ ቪዛ ፣ ዜግነት",
+            statusT: "ሁኔታውን ይፈትሹ", statusD: "የፋይልዎን ሁኔታ ይከታተሉ",
+            docsT: "መረጃ እና ሰነዶች", docsD: "መስፈርቶች እና መመሪያዎች",
+            select: "አገልግሎት ይምረጡ", app: "ማመልከቻ", docs: "ሰነዶች", upload: "መታወቂያ/ሰነድ ያስገቡ", btn: "ማመልከቻውን ላክ" 
+        },
+        ti: { 
+            heroT: "እንቋዕ ናብ HB ሰርቪስ ብሰላም መጻእኩም", 
+            heroS: "ሎሚ ብመንገዲ እንታይ ክንሕግዘኩም?", 
+            startT: "ሓድሽ አፕሊኬሽን", startD: "ፓስፖርት ፣ ቪዛ ፣ ዜግነት",
+            statusT: "ኩነታት ቼክ ግበር", statusD: "ናይ ፋይልኩም ኩነታት ተኸታተሉ",
+            docsT: "ሓበሬታን ሰነዳትን", docsD: "ቅድመ ኩነትን መምርሒን",
+            select: "ኣገልግሎት ምረጹ", app: "መመልከቲ", docs: "ሰነዳት", upload: "መታወቒ/ሰነድ ኣእትዉ", btn: "መመልከቲ ስደዱ" 
+        }
     };
     
     const t = texts[lang];
     if(t) {
         setText('hero-title', t.heroT);
         setText('hero-subtitle', t.heroS);
+        
+        // Menu Buttons
+        setText('menu-start-title', t.startT); setText('menu-start-desc', t.startD);
+        setText('menu-status-title', t.statusT); setText('menu-status-desc', t.statusD);
+        setText('menu-docs-title', t.docsT); setText('menu-docs-desc', t.docsD);
+
         setText('select-title', t.select);
         setText('form-header-title', t.app);
         setText('lbl-docs', t.docs);
@@ -312,77 +258,54 @@ export function updateLanguageUI(lang) {
     }
 }
 
-// --- HELPERS ---
+// --- HELPER: Safely Set Text ---
 function setText(id, text) {
     const el = document.getElementById(id);
     if(el) el.innerText = text;
 }
 
+// --- HELPER: Get Section Title ---
 function getLabel(key) {
     const dict = { details: { en: "Service Details", am: "ዝርዝር መረጃ", ti: "ዝርዝር ሓበሬታ" } };
     return dict[key] ? dict[key][state.currentLang] : "";
 }
 
-// --- NEW MODAL FUNCTIONS ---
-
+// --- INSTRUCTION MODAL ---
 export function showInstructionModal(onConfirm) {
-    const modal = document.getElementById('instruction-modal');
-    const btn = document.getElementById('btn-start-form');
+    const modal = document.getElementById('instructions-section'); // We reuse the section or modal logic
+    // NOTE: In your HTML, you don't have a modal div for instructions yet, 
+    // but you DO have <div id="instructions-section">. 
+    // Since the flow is Click Service -> Show Modal -> Show Form, let's inject a modal dynamically.
     
-    if(!modal) return; 
-    modal.classList.remove('hidden');
-    
-    // Replace button to clear old listeners
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-
-    newBtn.onclick = () => {
-        modal.classList.add('hidden');
-        if (onConfirm) onConfirm();
-    };
-}
-
-export function showReviewModal(formData, onConfirm) {
-    const modal = document.getElementById('review-modal');
-    const content = document.getElementById('review-content');
-    const btnConfirm = document.getElementById('btn-confirm-submit');
-    const btnEdit = document.getElementById('btn-edit');
-
-    if(!modal) return;
-
-    // Generate HTML for review
-    let html = '';
-    for (const [key, value] of Object.entries(formData.data)) {
-        if (typeof value !== 'object' && value) {
-            const label = key.replace(/_/g, ' ').toUpperCase();
-            html += `<div class="review-item">
-                        <span class="review-label">${label}</span>
-                        <span class="review-value">${value}</span>
-                     </div>`;
-        }
+    // Create Modal if not exists
+    let modalOverlay = document.getElementById('dynamic-instr-modal');
+    if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'dynamic-instr-modal';
+        modalOverlay.className = 'modal-overlay';
+        modalOverlay.innerHTML = `
+            <div class="modal-card">
+                <h3>⚠️ Important / አስፈላጊ</h3>
+                <div class="modal-body" style="text-align:left;">
+                    <ul>
+                        <li>Use <strong>English Letters</strong> only.<br><small>የእንግሊዝኛ ፊደላት ብቻ ይጠቀሙ።</small></li>
+                        <li>Scan documents clearly.<br><small>ሰነዶችን በጥራት ይስቀሉ።</small></li>
+                    </ul>
+                </div>
+                <button id="btn-modal-confirm" class="btn-submit">I Understand / ተረዲኡኒ ኣሎ</button>
+            </div>
+        `;
+        document.body.appendChild(modalOverlay);
     }
-    content.innerHTML = html;
-    modal.classList.remove('hidden');
-
-    // Edit Action
-    btnEdit.onclick = () => {
-        modal.classList.add('hidden');
-    };
-
-    // Confirm Action
-    const newBtn = btnConfirm.cloneNode(true);
-    btnConfirm.parentNode.replaceChild(newBtn, btnConfirm);
     
-    newBtn.onclick = () => {
-        newBtn.innerHTML = '<span class="spinner"></span> Submitting...';
-        newBtn.disabled = true;
-        
-        onConfirm(); 
-        modal.classList.add('hidden');
-        
-        setTimeout(() => {
-            newBtn.innerHTML = 'Confirm & Submit / አረጋግጽ';
-            newBtn.disabled = false;
-        }, 3000);
+    // Show it
+    modalOverlay.classList.remove('hidden');
+    modalOverlay.style.display = 'flex'; // Force flex
+
+    // Handle Click
+    const btn = modalOverlay.querySelector('#btn-modal-confirm');
+    btn.onclick = () => {
+        modalOverlay.style.display = 'none';
+        if (onConfirm) onConfirm();
     };
 }
