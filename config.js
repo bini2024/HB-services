@@ -280,7 +280,7 @@ export const specificFields = {
     { type: 'header', label: { en: 'References', am: 'ምስክሮች', ti: 'ምስክሮች' } },
 
     // REFERENCE 1
-    { type: 'subheader', label: { en: 'Reference 1', am: 'ምስክር 1', ti: 'ምስክር 1' } },
+    { type: 'header', label: { en: 'Reference 1', am: 'ምስክር 1', ti: 'ምስክር 1' } },
     { name: 'ref1_name', type: 'text', required: true, label: { en: 'Name', am: 'ስም', ti: 'ስም' } },
     { name: 'ref1_relation', type: 'text', required: true, label: { en: 'Relationship', am: 'ግንኙነት', ti: 'ዝምድና' } },
     { name: 'ref1_address', type: 'text', required: true, label: { en: 'Address', am: 'አድራሻ', ti: 'ኣድራሻ' } },
@@ -289,7 +289,7 @@ export const specificFields = {
     { name: 'ref1_months', type: 'number', required: true, label: { en: 'Months Known', am: 'የሚያውቁት ጊዜ (ወራት)', ti: 'ዝፈልጡካ ግዜ (ኣዋርሕ)' } },
 
     // REFERENCE 2
-    { type: 'subheader', label: { en: 'Reference 2', am: 'ምስክር 2', ti: 'ምስክር 2' } },
+    { type: 'header', label: { en: 'Reference 2', am: 'ምስክር 2', ti: 'ምስክር 2' } },
     { name: 'ref2_name', type: 'text', required: true, label: { en: 'Name', am: 'ስም', ti: 'ስም' } },
     { name: 'ref2_relation', type: 'text', required: true, label: { en: 'Relationship', am: 'ግንኙነት', ti: 'ዝምድና' } },
     { name: 'ref2_address', type: 'text', required: true, label: { en: 'Address', am: 'አድራሻ', ti: 'ኣድራሻ' } },
@@ -609,7 +609,7 @@ export const specificFields = {
         { type: 'header', label: { en: 'References', am: 'ምስክሮች', ti: 'ምስክሮች' } },
 
         // REFERENCE 1 (Expanded)
-        { type: 'subheader', label: { en: 'Reference 1', am: 'ምስክር 1', ti: 'ምስክር 1' } },
+        { type: 'header', label: { en: 'Reference 1', am: 'ምስክር 1', ti: 'ምስክር 1' } },
         { name: 'ref1_name', type: 'text', required: true, label: { en: 'Name', am: 'ስም', ti: 'ስም' } },
         { name: 'ref1_relation', type: 'text', required: true, label: { en: 'Relationship', am: 'ግንኙነት', ti: 'ዝምድና' } },
         { name: 'ref1_address', type: 'text', required: true, label: { en: 'Full Address', am: 'ሙሉ አድራሻ', ti: 'ሙሉእ ኣድራሻ' } },
@@ -618,7 +618,7 @@ export const specificFields = {
         { name: 'ref1_years', type: 'number', required: true, label: { en: 'Years Known', am: 'ዓመታት', ti: 'ዓመታት' } },
 
         // REFERENCE 2 (Expanded)
-        { type: 'subheader', label: { en: 'Reference 2', am: 'ምስክር 2', ti: 'ምስክር 2' } },
+        { type: 'header', label: { en: 'Reference 2', am: 'ምስክር 2', ti: 'ምስክር 2' } },
         { name: 'ref2_name', type: 'text', required: true, label: { en: 'Name', am: 'ስም', ti: 'ስም' } },
         { name: 'ref2_relation', type: 'text', required: true, label: { en: 'Relationship', am: 'ግንኙነት', ti: 'ዝምድና' } },
         { name: 'ref2_address', type: 'text', required: true, label: { en: 'Full Address', am: 'ሙሉ አድራሻ', ti: 'ሙሉእ ኣድራሻ' } },
